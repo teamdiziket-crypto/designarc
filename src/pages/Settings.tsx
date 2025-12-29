@@ -8,6 +8,12 @@ import {
   Mail,
   Save,
   RefreshCw,
+  GraduationCap,
+  Plus,
+  Pencil,
+  Trash2,
+  X,
+  Check,
 } from 'lucide-react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Input } from '@/components/ui/input';
@@ -15,6 +21,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { COURSES } from '@/types/student';
 
 export default function Settings() {
   const [settings, setSettings] = useState({
@@ -35,7 +42,54 @@ Best regards,
 Design Arc Academy Team`,
   });
 
+  const [courses, setCourses] = useState<string[]>([...COURSES]);
+  const [newCourse, setNewCourse] = useState('');
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [editingValue, setEditingValue] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+
+  const handleAddCourse = () => {
+    if (!newCourse.trim()) {
+      toast.error('Please enter a course name');
+      return;
+    }
+    if (courses.includes(newCourse.trim())) {
+      toast.error('Course already exists');
+      return;
+    }
+    setCourses([...courses, newCourse.trim()]);
+    setNewCourse('');
+    toast.success('Course added successfully');
+  };
+
+  const handleEditCourse = (index: number) => {
+    setEditingIndex(index);
+    setEditingValue(courses[index]);
+  };
+
+  const handleSaveEdit = () => {
+    if (editingIndex === null) return;
+    if (!editingValue.trim()) {
+      toast.error('Course name cannot be empty');
+      return;
+    }
+    if (courses.some((c, i) => i !== editingIndex && c === editingValue.trim())) {
+      toast.error('Course already exists');
+      return;
+    }
+    const updated = [...courses];
+    updated[editingIndex] = editingValue.trim();
+    setCourses(updated);
+    setEditingIndex(null);
+    setEditingValue('');
+    toast.success('Course updated successfully');
+  };
+
+  const handleDeleteCourse = (index: number) => {
+    const updated = courses.filter((_, i) => i !== index);
+    setCourses(updated);
+    toast.success('Course deleted successfully');
+  };
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -65,6 +119,101 @@ Design Arc Academy Team`,
             <RefreshCw className="w-4 h-4 mr-2" />
             Sync Sheet
           </Button>
+        </div>
+
+        {/* Course Management */}
+        <div className="glass-card rounded-2xl p-6">
+          <h2 className="text-lg font-semibold text-foreground mb-6 flex items-center gap-2">
+            <GraduationCap className="w-5 h-5 text-primary" />
+            Course Management
+          </h2>
+
+          {/* Add Course */}
+          <div className="flex gap-2 mb-4">
+            <Input
+              value={newCourse}
+              onChange={(e) => setNewCourse(e.target.value)}
+              placeholder="Enter new course name..."
+              className="input-glass flex-1"
+              onKeyDown={(e) => e.key === 'Enter' && handleAddCourse()}
+            />
+            <Button onClick={handleAddCourse} className="btn-primary-gradient">
+              <Plus className="w-4 h-4 mr-2" />
+              Add Course
+            </Button>
+          </div>
+
+          {/* Course List */}
+          <div className="space-y-2">
+            {courses.map((course, index) => (
+              <div
+                key={index}
+                className="flex items-center gap-2 p-3 rounded-xl bg-muted/30 group hover:bg-muted/50 transition-colors"
+              >
+                {editingIndex === index ? (
+                  <>
+                    <Input
+                      value={editingValue}
+                      onChange={(e) => setEditingValue(e.target.value)}
+                      className="input-glass flex-1"
+                      autoFocus
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleSaveEdit();
+                        if (e.key === 'Escape') {
+                          setEditingIndex(null);
+                          setEditingValue('');
+                        }
+                      }}
+                    />
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={handleSaveEdit}
+                      className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-100"
+                    >
+                      <Check className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => {
+                        setEditingIndex(null);
+                        setEditingValue('');
+                      }}
+                      className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <span className="flex-1 text-foreground">{course}</span>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => handleEditCourse(index)}
+                      className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => handleDeleteCourse(index)}
+                      className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </>
+                )}
+              </div>
+            ))}
+            {courses.length === 0 && (
+              <p className="text-center text-muted-foreground py-4">
+                No courses added yet. Add your first course above.
+              </p>
+            )}
+          </div>
         </div>
 
         {/* Institute Settings */}
