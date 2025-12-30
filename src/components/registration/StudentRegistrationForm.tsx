@@ -18,8 +18,8 @@ const registrationSchema = z.object({
   email: z.string().email('Please enter a valid email'),
   course: z.string().min(1, 'Please select a course'),
   city: z.string().min(2, 'City must be at least 2 characters').max(50),
-  payment_mode: z.enum(['UPI', 'Razorpay', 'Others']),
-  payment_status: z.enum(['Paid', 'Partial', 'Pending']),
+  payment_mode: z.enum(['UPI/Gpay/Phonepe/Paytm', 'Website (Razorpay)', 'Others']),
+  payment_status: z.enum(['Paid', 'Partial']),
   amount_paid: z.number().min(0, 'Amount cannot be negative'),
   pending_amount: z.number().min(0, 'Amount cannot be negative'),
 });
@@ -52,7 +52,7 @@ export function StudentRegistrationForm() {
       email: '',
       course: '',
       city: '',
-      payment_mode: 'UPI',
+      payment_mode: 'UPI/Gpay/Phonepe/Paytm',
       payment_status: 'Paid',
       amount_paid: 0,
       pending_amount: 0,
@@ -88,8 +88,6 @@ export function StudentRegistrationForm() {
   useEffect(() => {
     if (paymentStatus === 'Paid') {
       setValue('pending_amount', 0);
-    } else if (paymentStatus === 'Pending') {
-      setValue('amount_paid', 0);
     }
   }, [paymentStatus, setValue]);
 
@@ -268,16 +266,16 @@ export function StudentRegistrationForm() {
             <div className="space-y-2">
               <Label>Payment Mode *</Label>
               <Select
-                defaultValue="UPI"
-                onValueChange={(value: 'UPI' | 'Razorpay' | 'Others') => setValue('payment_mode', value)}
+                defaultValue="UPI/Gpay/Phonepe/Paytm"
+                onValueChange={(value: 'UPI/Gpay/Phonepe/Paytm' | 'Website (Razorpay)' | 'Others') => setValue('payment_mode', value)}
                 disabled={isLoading}
               >
                 <SelectTrigger className="input-glass">
                   <SelectValue placeholder="Select payment mode" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="UPI">UPI</SelectItem>
-                  <SelectItem value="Razorpay">Razorpay</SelectItem>
+                  <SelectItem value="UPI/Gpay/Phonepe/Paytm">UPI/Gpay/Phonepe/Paytm</SelectItem>
+                  <SelectItem value="Website (Razorpay)">Website (Razorpay)</SelectItem>
                   <SelectItem value="Others">Others</SelectItem>
                 </SelectContent>
               </Select>
@@ -288,16 +286,15 @@ export function StudentRegistrationForm() {
               <Label>Payment Status *</Label>
               <Select
                 defaultValue="Paid"
-                onValueChange={(value: 'Paid' | 'Partial' | 'Pending') => setValue('payment_status', value)}
+                onValueChange={(value: 'Paid' | 'Partial') => setValue('payment_status', value)}
                 disabled={isLoading}
               >
                 <SelectTrigger className="input-glass">
                   <SelectValue placeholder="Select payment status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Paid">Paid (Full Amount)</SelectItem>
+                  <SelectItem value="Paid">Full Paid</SelectItem>
                   <SelectItem value="Partial">Partial Paid</SelectItem>
-                  <SelectItem value="Pending">Pending</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -320,8 +317,8 @@ export function StudentRegistrationForm() {
               </div>
             )}
 
-            {/* Pending Amount - Show for Partial and Pending */}
-            {(paymentStatus === 'Partial' || paymentStatus === 'Pending') && (
+            {/* Pending Amount - Show for Partial only */}
+            {paymentStatus === 'Partial' && (
               <div className="space-y-2">
                 <Label htmlFor="pending_amount">Pending Amount (₹) *</Label>
                 <Input

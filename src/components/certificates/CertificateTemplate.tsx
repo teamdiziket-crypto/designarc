@@ -25,7 +25,7 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
   if (!templateUrl) {
     return (
       <div 
-        className="relative w-[794px] h-[562px] mx-auto flex items-center justify-center"
+        className="relative w-[794px] h-[1123px] mx-auto flex items-center justify-center"
         style={{ backgroundColor: '#FFF7ED' }}
       >
         <div className="text-center text-muted-foreground">
@@ -38,7 +38,7 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
 
   return (
     <div 
-      className="relative w-[794px] h-[562px] mx-auto overflow-hidden"
+      className="relative w-[794px] h-[1123px] mx-auto overflow-hidden"
       style={{ fontFamily: 'Montserrat, sans-serif' }}
     >
       {/* Background Template Image */}
@@ -48,60 +48,59 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
         className="absolute inset-0 w-full h-full object-cover"
       />
 
-      {/* Dynamic Text Overlays */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        {/* Student Name - Centered, positioned in middle area */}
-        <div 
-          className="absolute"
-          style={{ top: '45%', left: '50%', transform: 'translate(-50%, -50%)' }}
+      {/* Dynamic Text Overlays - Positioned based on template design */}
+      
+      {/* Student Name - Centered below "This is to certify that" */}
+      <div 
+        className="absolute w-full text-center"
+        style={{ top: '42%', left: '0' }}
+      >
+        <p 
+          className="text-[36px] px-12"
+          style={{ 
+            fontFamily: "'Playfair Display', serif",
+            fontWeight: 600,
+            color: '#1F2937',
+            letterSpacing: '2px',
+          }}
         >
-          <p 
-            className="text-[48px] text-center"
-            style={{ 
-              fontFamily: "'Playfair Display', serif",
-              fontWeight: 600,
-              color: '#1F2937',
-              letterSpacing: '1.5px',
-              textShadow: '0 1px 2px rgba(0,0,0,0.1)',
-            }}
-          >
-            {fullName || 'Student Name'}
-          </p>
-        </div>
+          {fullName || 'Student Name'}
+        </p>
+      </div>
 
-        {/* Issue Date - Bottom left area */}
-        <div 
-          className="absolute text-left"
-          style={{ bottom: '15%', left: '12%' }}
+      {/* Issue Date - Below "DATE OF ISSUE" label on left side */}
+      <div 
+        className="absolute"
+        style={{ bottom: '15.5%', left: '10%' }}
+      >
+        <p 
+          className="text-[14px]"
+          style={{ 
+            fontFamily: 'Montserrat, sans-serif',
+            fontWeight: 500,
+            color: '#4B5563',
+          }}
         >
-          <p 
-            className="text-[16px]"
-            style={{ 
-              fontFamily: 'Montserrat, sans-serif',
-              fontWeight: 500,
-              color: '#4B5563',
-            }}
-          >
-            {formattedDate}
-          </p>
-        </div>
+          {formattedDate}
+        </p>
+      </div>
 
-        {/* Certificate ID - Bottom left, below date */}
-        <div 
-          className="absolute text-left"
-          style={{ bottom: '10%', left: '12%' }}
+      {/* Certificate ID - Small text at bottom */}
+      <div 
+        className="absolute w-full text-center"
+        style={{ bottom: '4%', left: '0' }}
+      >
+        <p 
+          className="text-[10px]"
+          style={{ 
+            fontFamily: "'JetBrains Mono', monospace",
+            fontWeight: 400,
+            color: '#6B7280',
+            letterSpacing: '0.5px',
+          }}
         >
-          <p 
-            className="text-[12px]"
-            style={{ 
-              fontFamily: "'JetBrains Mono', monospace",
-              fontWeight: 400,
-              color: '#6B7280',
-            }}
-          >
-            ID: {certificateId}
-          </p>
-        </div>
+          Certificate ID: {certificateId}
+        </p>
       </div>
     </div>
   );
