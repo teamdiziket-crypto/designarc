@@ -6,11 +6,11 @@ import { StudentTable } from '@/components/students/StudentTable';
 import { Pagination } from '@/components/students/Pagination';
 import { AddStudentModal } from '@/components/students/AddStudentModal';
 import { DeleteConfirmModal } from '@/components/students/DeleteConfirmModal';
+import { ExportModal } from '@/components/students/ExportModal';
 import { Button } from '@/components/ui/button';
 import { useStudents } from '@/hooks/useStudents';
 import { Student } from '@/types/student';
 import { toast } from 'sonner';
-import { exportStudentsToCSV } from '@/utils/exportStudents';
 
 export default function Students() {
   const { students, loading, addStudent, updateStudent, deleteStudent, bulkDeleteStudents } = useStudents();
@@ -28,6 +28,7 @@ export default function Students() {
   const [deleteStudentData, setDeleteStudentData] = useState<Student | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const [exportModalOpen, setExportModalOpen] = useState(false);
 
   const filteredStudents = useMemo(() => {
     let filtered = [...students];
@@ -99,8 +100,7 @@ export default function Students() {
       toast.error('No students to export');
       return;
     }
-    exportStudentsToCSV(filteredStudents, 'students_export');
-    toast.success(`Exported ${filteredStudents.length} students to CSV`);
+    setExportModalOpen(true);
   };
 
   const handleAddStudent = async (studentData: Partial<Student>) => {
@@ -259,6 +259,12 @@ export default function Students() {
           onOpenChange={setBulkDeleteOpen}
           bulkCount={selectedIds.size}
           onConfirm={handleBulkDelete}
+        />
+
+        <ExportModal
+          open={exportModalOpen}
+          onOpenChange={setExportModalOpen}
+          students={filteredStudents}
         />
       </div>
     </MainLayout>
