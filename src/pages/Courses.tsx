@@ -130,9 +130,8 @@ export default function Courses() {
                     <Input
                       value={editingShortName}
                       onChange={(e) => setEditingShortName(e.target.value.toUpperCase())}
-                      className="input-glass w-20"
+                      className="input-glass w-24"
                       placeholder="Short"
-                      maxLength={6}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') handleSaveEdit();
                         if (e.key === 'Escape') handleCancelEdit();
