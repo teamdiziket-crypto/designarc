@@ -8,6 +8,8 @@ import {
   LogOut,
   GraduationCap,
 } from 'lucide-react';
+import logoFull from '@/assets/logo-full.png';
+import logoIcon from '@/assets/logo-icon.png';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
@@ -40,15 +42,8 @@ export function Sidebar() {
       {/* Logo */}
       <div className="p-6 border-b border-sidebar-border">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-glow">
-            <GraduationCap className="w-6 h-6 text-primary-foreground" />
-          </div>
-          <div>
-            <h1 className="font-bold text-sidebar-foreground text-lg leading-tight">
-              Design Arc
-            </h1>
-            <p className="text-xs text-sidebar-foreground/60">Academy</p>
-          </div>
+          <img src={logoIcon} alt="Design Arc" className="w-10 h-10 rounded-xl" />
+          <img src={logoFull} alt="Design Arc Academy" className="h-8 object-contain" />
         </div>
       </div>
 
