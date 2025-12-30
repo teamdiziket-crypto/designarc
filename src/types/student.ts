@@ -9,7 +9,7 @@ export interface Student {
   course: string; // Keep for backward compatibility, will use first course
   courses: string[]; // Multiple courses
   batchCode: string; // Batch code (e.g., "FS01, GD02")
-  paymentMode: 'Cash' | 'UPI' | 'Bank Transfer' | 'Card' | 'Other';
+  paymentMode: 'UPI' | 'Razorpay' | 'Others';
   paymentStatus: 'Paid' | 'Pending' | 'Partial';
   amountPaid: number;
   pendingAmount: number;
@@ -45,7 +45,7 @@ export interface DashboardStats {
 }
 
 export type PaymentStatus = 'Paid' | 'Pending' | 'Partial';
-export type PaymentMode = 'Cash' | 'UPI' | 'Bank Transfer' | 'Card' | 'Other';
+export type PaymentMode = 'UPI' | 'Razorpay' | 'Others';
 
 export const COURSES = [
   'UI/UX Design',
