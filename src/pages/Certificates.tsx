@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Search, Filter, Award, Plus } from 'lucide-react';
+import { Search, Filter, Award, Plus, Loader2 } from 'lucide-react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { CertificateCard } from '@/components/certificates/CertificateCard';
 import { Input } from '@/components/ui/input';
@@ -11,14 +11,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { mockCertificates } from '@/data/mockData';
+import { useCertificates } from '@/hooks/useCertificates';
 import { Certificate } from '@/types/student';
 import { useCourses } from '@/contexts/CoursesContext';
 import { toast } from 'sonner';
 
 export default function Certificates() {
   const { courses } = useCourses();
-  const [certificates, setCertificates] = useState<Certificate[]>(mockCertificates);
+  const { certificates, loading, revokeCertificate } = useCertificates();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCourse, setSelectedCourse] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -67,14 +67,19 @@ export default function Certificates() {
     toast.success(`Email sent to ${cert.fullName}`);
   };
 
-  const handleRevoke = (cert: Certificate) => {
-    setCertificates((prev) =>
-      prev.map((c) =>
-        c.id === cert.id ? { ...c, status: 'Revoked' as const } : c
-      )
-    );
-    toast.success(`Certificate ${cert.certificateId} has been revoked`);
+  const handleRevoke = async (cert: Certificate) => {
+    await revokeCertificate(cert.id);
   };
+
+  if (loading) {
+    return (
+      <MainLayout>
+        <div className="flex items-center justify-center h-96">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout>

@@ -1,65 +1,131 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+
+interface Course {
+  id: string;
+  name: string;
+}
 
 interface CoursesContextType {
   courses: string[];
-  addCourse: (course: string) => boolean;
-  updateCourse: (index: number, newName: string) => boolean;
-  deleteCourse: (index: number) => void;
+  coursesData: Course[];
+  loading: boolean;
+  addCourse: (course: string) => Promise<boolean>;
+  updateCourse: (id: string, newName: string) => Promise<boolean>;
+  deleteCourse: (id: string) => Promise<void>;
 }
-
-const DEFAULT_COURSES = [
-  'UI/UX Design',
-  'Graphic Design',
-  'Web Development',
-  'Digital Marketing',
-  'Interior Design',
-  'Fashion Design',
-  'Animation & VFX',
-  'Photography',
-];
-
-const STORAGE_KEY = 'designarc_courses';
 
 const CoursesContext = createContext<CoursesContextType | undefined>(undefined);
 
 export function CoursesProvider({ children }: { children: ReactNode }) {
-  const [courses, setCourses] = useState<string[]>(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : DEFAULT_COURSES;
-  });
+  const [coursesData, setCoursesData] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchCourses = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('courses')
+        .select('*')
+        .order('name');
+
+      if (error) throw error;
+      setCoursesData(data || []);
+    } catch (error) {
+      console.error('Error fetching courses:', error);
+      toast.error('Failed to load courses');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(courses));
-  }, [courses]);
+    fetchCourses();
 
-  const addCourse = (course: string): boolean => {
+    // Set up realtime subscription
+    const channel = supabase
+      .channel('courses-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'courses' },
+        (payload) => {
+          console.log('Realtime course update:', payload);
+          if (payload.eventType === 'INSERT') {
+            setCoursesData((prev) => [...prev, payload.new as Course].sort((a, b) => a.name.localeCompare(b.name)));
+          } else if (payload.eventType === 'UPDATE') {
+            setCoursesData((prev) =>
+              prev.map((c) => (c.id === (payload.new as Course).id ? (payload.new as Course) : c))
+                .sort((a, b) => a.name.localeCompare(b.name))
+            );
+          } else if (payload.eventType === 'DELETE') {
+            setCoursesData((prev) => prev.filter((c) => c.id !== (payload.old as Course).id));
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  const courses = coursesData.map((c) => c.name);
+
+  const addCourse = async (course: string): Promise<boolean> => {
     const trimmed = course.trim();
     if (!trimmed || courses.includes(trimmed)) {
+      toast.error('Course already exists or invalid name');
       return false;
     }
-    setCourses((prev) => [...prev, trimmed]);
-    return true;
+
+    try {
+      const { error } = await supabase.from('courses').insert({ name: trimmed });
+      if (error) throw error;
+      toast.success('Course added successfully');
+      return true;
+    } catch (error) {
+      console.error('Error adding course:', error);
+      toast.error('Failed to add course');
+      return false;
+    }
   };
 
-  const updateCourse = (index: number, newName: string): boolean => {
+  const updateCourse = async (id: string, newName: string): Promise<boolean> => {
     const trimmed = newName.trim();
-    if (!trimmed || courses.some((c, i) => i !== index && c === trimmed)) {
+    if (!trimmed) {
+      toast.error('Course name cannot be empty');
       return false;
     }
-    setCourses((prev) => {
-      const updated = [...prev];
-      updated[index] = trimmed;
-      return updated;
-    });
-    return true;
+
+    try {
+      const { error } = await supabase
+        .from('courses')
+        .update({ name: trimmed })
+        .eq('id', id);
+
+      if (error) throw error;
+      toast.success('Course updated successfully');
+      return true;
+    } catch (error) {
+      console.error('Error updating course:', error);
+      toast.error('Failed to update course');
+      return false;
+    }
   };
 
-  const deleteCourse = (index: number) => {
-    setCourses((prev) => prev.filter((_, i) => i !== index));
+  const deleteCourse = async (id: string): Promise<void> => {
+    try {
+      const { error } = await supabase.from('courses').delete().eq('id', id);
+      if (error) throw error;
+      toast.success('Course deleted successfully');
+    } catch (error) {
+      console.error('Error deleting course:', error);
+      toast.error('Failed to delete course');
+    }
   };
 
   return (
-    <CoursesContext.Provider value={{ courses, addCourse, updateCourse, deleteCourse }}>
+    <CoursesContext.Provider value={{ courses, coursesData, loading, addCourse, updateCourse, deleteCourse }}>
       {children}
     </CoursesContext.Provider>
   );

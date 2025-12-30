@@ -1,59 +1,61 @@
 import { useState } from 'react';
-import { GraduationCap, Plus, Pencil, Trash2, X, Check } from 'lucide-react';
+import { GraduationCap, Plus, Pencil, Trash2, X, Check, Loader2 } from 'lucide-react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
 import { useCourses } from '@/contexts/CoursesContext';
 
 export default function Courses() {
-  const { courses, addCourse, updateCourse, deleteCourse } = useCourses();
+  const { courses, coursesData, loading, addCourse, updateCourse, deleteCourse } = useCourses();
   const [newCourse, setNewCourse] = useState('');
-  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [editingValue, setEditingValue] = useState('');
 
-  const handleAddCourse = () => {
+  const handleAddCourse = async () => {
     if (!newCourse.trim()) {
-      toast.error('Please enter a course name');
       return;
     }
-    if (addCourse(newCourse)) {
+    const success = await addCourse(newCourse);
+    if (success) {
       setNewCourse('');
-      toast.success('Course added successfully');
-    } else {
-      toast.error('Course already exists');
     }
   };
 
-  const handleEditCourse = (index: number) => {
-    setEditingIndex(index);
-    setEditingValue(courses[index]);
+  const handleEditCourse = (id: string, name: string) => {
+    setEditingId(id);
+    setEditingValue(name);
   };
 
-  const handleSaveEdit = () => {
-    if (editingIndex === null) return;
+  const handleSaveEdit = async () => {
+    if (editingId === null) return;
     if (!editingValue.trim()) {
-      toast.error('Course name cannot be empty');
       return;
     }
-    if (updateCourse(editingIndex, editingValue)) {
-      setEditingIndex(null);
+    const success = await updateCourse(editingId, editingValue);
+    if (success) {
+      setEditingId(null);
       setEditingValue('');
-      toast.success('Course updated successfully');
-    } else {
-      toast.error('Course already exists');
     }
   };
 
-  const handleDeleteCourse = (index: number) => {
-    deleteCourse(index);
-    toast.success('Course deleted successfully');
+  const handleDeleteCourse = async (id: string) => {
+    await deleteCourse(id);
   };
 
   const handleCancelEdit = () => {
-    setEditingIndex(null);
+    setEditingId(null);
     setEditingValue('');
   };
+
+  if (loading) {
+    return (
+      <MainLayout>
+        <div className="flex items-center justify-center h-96">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout>
@@ -103,12 +105,12 @@ export default function Courses() {
 
           {/* Course List */}
           <div className="space-y-2">
-            {courses.map((course, index) => (
+            {coursesData.map((course, index) => (
               <div
-                key={index}
+                key={course.id}
                 className="flex items-center gap-2 p-3 rounded-xl bg-muted/30 group hover:bg-muted/50 transition-colors"
               >
-                {editingIndex === index ? (
+                {editingId === course.id ? (
                   <>
                     <Input
                       value={editingValue}
@@ -142,11 +144,11 @@ export default function Courses() {
                     <span className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-sm font-medium text-primary">
                       {index + 1}
                     </span>
-                    <span className="flex-1 text-foreground font-medium">{course}</span>
+                    <span className="flex-1 text-foreground font-medium">{course.name}</span>
                     <Button
                       size="icon"
                       variant="ghost"
-                      onClick={() => handleEditCourse(index)}
+                      onClick={() => handleEditCourse(course.id, course.name)}
                       className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
                     >
                       <Pencil className="w-4 h-4" />
@@ -154,7 +156,7 @@ export default function Courses() {
                     <Button
                       size="icon"
                       variant="ghost"
-                      onClick={() => handleDeleteCourse(index)}
+                      onClick={() => handleDeleteCourse(course.id)}
                       className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10"
                     >
                       <Trash2 className="w-4 h-4" />

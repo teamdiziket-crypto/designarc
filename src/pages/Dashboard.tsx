@@ -8,11 +8,13 @@ import {
   Clock,
   TrendingUp,
   Award,
+  Loader2,
 } from 'lucide-react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { StatCard } from '@/components/dashboard/StatCard';
-import { mockStudents, mockCertificates, calculateStats } from '@/data/mockData';
-import { COURSES } from '@/types/student';
+import { useStudents } from '@/hooks/useStudents';
+import { useCertificates } from '@/hooks/useCertificates';
+import { DashboardStats } from '@/types/student';
 
 const formatCurrency = (amount: number) => {
   if (amount >= 100000) {
@@ -22,23 +24,52 @@ const formatCurrency = (amount: number) => {
 };
 
 export default function Dashboard() {
-  const stats = useMemo(() => calculateStats(mockStudents), []);
+  const { students, loading: studentsLoading } = useStudents();
+  const { certificates, loading: certificatesLoading } = useCertificates();
+
+  const loading = studentsLoading || certificatesLoading;
+
+  const stats: DashboardStats = useMemo(() => {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const last7Days = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const last30Days = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+    return {
+      totalStudents: students.length,
+      todayCount: students.filter((s) => new Date(s.timestamp) >= today).length,
+      last7Days: students.filter((s) => new Date(s.timestamp) >= last7Days).length,
+      last30Days: students.filter((s) => new Date(s.timestamp) >= last30Days).length,
+      totalPaidAmount: students.reduce((sum, s) => sum + s.amountPaid, 0),
+      totalPendingAmount: students.reduce((sum, s) => sum + s.pendingAmount, 0),
+    };
+  }, [students]);
 
   const courseDistribution = useMemo(() => {
     const distribution: Record<string, number> = {};
-    mockStudents.forEach((student) => {
+    students.forEach((student) => {
       distribution[student.course] = (distribution[student.course] || 0) + 1;
     });
     return Object.entries(distribution)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5);
-  }, []);
+  }, [students]);
 
   const recentStudents = useMemo(() => {
-    return [...mockStudents]
+    return [...students]
       .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
       .slice(0, 5);
-  }, []);
+  }, [students]);
+
+  if (loading) {
+    return (
+      <MainLayout>
+        <div className="flex items-center justify-center h-96">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout>
@@ -116,7 +147,9 @@ export default function Dashboard() {
             </div>
             <div className="space-y-4">
               {courseDistribution.map(([course, count]) => {
-                const percentage = Math.round((count / stats.totalStudents) * 100);
+                const percentage = stats.totalStudents > 0 
+                  ? Math.round((count / stats.totalStudents) * 100) 
+                  : 0;
                 return (
                   <div key={course} className="space-y-2">
                     <div className="flex items-center justify-between text-sm">
@@ -134,6 +167,11 @@ export default function Dashboard() {
                   </div>
                 );
               })}
+              {courseDistribution.length === 0 && (
+                <p className="text-center text-muted-foreground py-4">
+                  No course data available yet.
+                </p>
+              )}
             </div>
           </div>
 
@@ -146,7 +184,7 @@ export default function Dashboard() {
               <Award className="w-5 h-5 text-primary" />
             </div>
             <div className="space-y-4">
-              {mockCertificates.slice(0, 5).map((cert) => (
+              {certificates.slice(0, 5).map((cert) => (
                 <div
                   key={cert.id}
                   className="flex items-center gap-3 p-3 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors"
@@ -173,6 +211,11 @@ export default function Dashboard() {
                   </span>
                 </div>
               ))}
+              {certificates.length === 0 && (
+                <p className="text-center text-muted-foreground py-4">
+                  No certificates issued yet.
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -226,6 +269,11 @@ export default function Dashboard() {
                 </div>
               </div>
             ))}
+            {recentStudents.length === 0 && (
+              <div className="col-span-full text-center text-muted-foreground py-4">
+                No students enrolled yet.
+              </div>
+            )}
           </div>
         </div>
       </div>

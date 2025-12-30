@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Loader2 } from 'lucide-react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { StudentFilters } from '@/components/students/StudentFilters';
 import { StudentTable } from '@/components/students/StudentTable';
@@ -7,12 +7,12 @@ import { Pagination } from '@/components/students/Pagination';
 import { AddStudentModal } from '@/components/students/AddStudentModal';
 import { DeleteConfirmModal } from '@/components/students/DeleteConfirmModal';
 import { Button } from '@/components/ui/button';
-import { mockStudents } from '@/data/mockData';
+import { useStudents } from '@/hooks/useStudents';
 import { Student } from '@/types/student';
 import { toast } from 'sonner';
 
 export default function Students() {
-  const [students, setStudents] = useState<Student[]>(mockStudents);
+  const { students, loading, addStudent, updateStudent, deleteStudent, bulkDeleteStudents } = useStudents();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCourse, setSelectedCourse] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
@@ -20,7 +20,7 @@ export default function Students() {
   const [currentPage, setCurrentPage] = useState(1);
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editStudent, setEditStudent] = useState<Student | null>(null);
-  const [deleteStudent, setDeleteStudent] = useState<Student | null>(null);
+  const [deleteStudentData, setDeleteStudentData] = useState<Student | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 
@@ -78,47 +78,38 @@ export default function Students() {
     toast.success('Export started! Your file will be ready shortly.');
   };
 
-  const handleAddStudent = (studentData: Partial<Student>) => {
+  const handleAddStudent = async (studentData: Partial<Student>) => {
     if (editStudent) {
-      setStudents((prev) =>
-        prev.map((s) =>
-          s.id === editStudent.id ? { ...s, ...studentData } as Student : s
-        )
-      );
+      await updateStudent(editStudent.id, studentData);
     } else {
-      const newStudent: Student = {
-        id: `STU-${String(students.length + 1).padStart(4, '0')}`,
-        rowId: students.length + 2,
-        timestamp: new Date().toISOString(),
-        fullName: studentData.fullName || '',
-        email: studentData.email || '',
-        whatsappNo: studentData.whatsappNo || '',
-        city: studentData.city || '',
-        course: studentData.course || '',
-        paymentMode: studentData.paymentMode || 'UPI',
-        paymentStatus: studentData.paymentStatus || 'Pending',
-        amountPaid: studentData.amountPaid || 0,
-        pendingAmount: studentData.pendingAmount || 0,
-      };
-      setStudents((prev) => [newStudent, ...prev]);
+      await addStudent(studentData);
     }
     setEditStudent(null);
+    setAddModalOpen(false);
   };
 
-  const handleDeleteStudent = () => {
-    if (deleteStudent) {
-      setStudents((prev) => prev.filter((s) => s.id !== deleteStudent.id));
-      toast.success('Student deleted successfully');
+  const handleDeleteStudent = async () => {
+    if (deleteStudentData) {
+      await deleteStudent(deleteStudentData.id);
     }
-    setDeleteStudent(null);
+    setDeleteStudentData(null);
   };
 
-  const handleBulkDelete = () => {
-    setStudents((prev) => prev.filter((s) => !selectedIds.has(s.id)));
-    toast.success(`${selectedIds.size} students deleted successfully`);
+  const handleBulkDelete = async () => {
+    await bulkDeleteStudents(Array.from(selectedIds));
     setSelectedIds(new Set());
     setBulkDeleteOpen(false);
   };
+
+  if (loading) {
+    return (
+      <MainLayout>
+        <div className="flex items-center justify-center h-96">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout>
@@ -203,7 +194,7 @@ export default function Students() {
               setEditStudent(student);
               setAddModalOpen(true);
             }}
-            onDelete={setDeleteStudent}
+            onDelete={setDeleteStudentData}
           />
 
           {/* Pagination */}
@@ -227,9 +218,9 @@ export default function Students() {
         />
 
         <DeleteConfirmModal
-          open={!!deleteStudent}
-          onOpenChange={(open) => !open && setDeleteStudent(null)}
-          student={deleteStudent}
+          open={!!deleteStudentData}
+          onOpenChange={(open) => !open && setDeleteStudentData(null)}
+          student={deleteStudentData}
           onConfirm={handleDeleteStudent}
         />
 
