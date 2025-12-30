@@ -19,7 +19,7 @@ interface DbCertificate {
 const mapDbToCertificate = (db: DbCertificate): Certificate => ({
   id: db.id,
   certificateId: db.certificate_id,
-  studentRowId: 0, // Not used with new structure
+  studentId: db.student_id || undefined,
   fullName: db.full_name,
   course: db.course,
   issueDate: db.issue_date,

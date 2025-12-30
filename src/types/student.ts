@@ -13,12 +13,13 @@ export interface Student {
   paymentStatus: 'Paid' | 'Pending' | 'Partial';
   amountPaid: number;
   pendingAmount: number;
+  certificateStatus: 'Pending' | 'Issued' | 'Revoked';
 }
 
 export interface Certificate {
   id: string;
   certificateId: string;
-  studentRowId: number;
+  studentId?: string;
   fullName: string;
   course: string;
   issueDate: string;
@@ -46,6 +47,7 @@ export interface DashboardStats {
 
 export type PaymentStatus = 'Paid' | 'Pending' | 'Partial';
 export type PaymentMode = 'UPI' | 'Razorpay' | 'Others';
+export type CertificateStatus = 'Pending' | 'Issued' | 'Revoked';
 
 export const COURSES = [
   'UI/UX Design',

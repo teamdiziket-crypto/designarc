@@ -48,6 +48,7 @@ const generateStudents = (count: number): Student[] => {
       paymentStatus,
       amountPaid,
       pendingAmount,
+      certificateStatus: paymentStatus === 'Paid' ? 'Issued' : 'Pending',
     };
   });
 };
@@ -60,11 +61,11 @@ export const mockCertificates: Certificate[] = mockStudents
   .map((student, i) => ({
     id: `CERT-${String(i + 1).padStart(4, '0')}`,
     certificateId: `DAC-2024-${student.course.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 3)}-${String(i + 1).padStart(5, '0')}`,
-    studentRowId: student.rowId,
+    studentId: student.id,
     fullName: student.fullName,
     course: student.course,
     issueDate: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    status: Math.random() > 0.1 ? 'Active' : 'Revoked',
+    status: (Math.random() > 0.1 ? 'Active' : 'Revoked') as 'Active' | 'Revoked',
   }));
 
 export const calculateStats = (students: Student[]): DashboardStats => {

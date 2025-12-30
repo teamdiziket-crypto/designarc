@@ -17,6 +17,7 @@ interface DbStudent {
   payment_status: string;
   amount_paid: number;
   pending_amount: number;
+  certificate_status: string;
   created_at: string;
   updated_at: string;
 }
@@ -36,6 +37,7 @@ const mapDbToStudent = (db: DbStudent): Student => ({
   paymentStatus: db.payment_status as Student['paymentStatus'],
   amountPaid: Number(db.amount_paid),
   pendingAmount: Number(db.pending_amount),
+  certificateStatus: (db.certificate_status || 'Pending') as Student['certificateStatus'],
 });
 
 export function useStudents() {

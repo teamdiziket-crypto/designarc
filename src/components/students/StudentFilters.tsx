@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Filter, Calendar, RotateCcw, Download } from 'lucide-react';
+import { Search, Filter, Calendar, RotateCcw, Download, Award, Hash } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
@@ -23,6 +23,10 @@ interface StudentFiltersProps {
   onSearchChange: (value: string) => void;
   selectedCourse: string;
   onCourseChange: (value: string) => void;
+  selectedBatchCode: string;
+  onBatchCodeChange: (value: string) => void;
+  selectedCertificateStatus: string;
+  onCertificateStatusChange: (value: string) => void;
   dateFilter: string;
   onDateFilterChange: (value: string) => void;
   recordsPerPage: number;
@@ -31,6 +35,7 @@ interface StudentFiltersProps {
   onExport: () => void;
   customDateRange?: { from: Date | undefined; to: Date | undefined };
   onCustomDateRangeChange?: (range: { from: Date | undefined; to: Date | undefined }) => void;
+  batchCodes: string[];
 }
 
 export function StudentFilters({
@@ -38,6 +43,10 @@ export function StudentFilters({
   onSearchChange,
   selectedCourse,
   onCourseChange,
+  selectedBatchCode,
+  onBatchCodeChange,
+  selectedCertificateStatus,
+  onCertificateStatusChange,
   dateFilter,
   onDateFilterChange,
   recordsPerPage,
@@ -46,6 +55,7 @@ export function StudentFilters({
   onExport,
   customDateRange,
   onCustomDateRangeChange,
+  batchCodes,
 }: StudentFiltersProps) {
   const { courses } = useCourses();
   const [calendarOpen, setCalendarOpen] = useState(false);
@@ -105,6 +115,36 @@ export function StudentFilters({
                 {course}
               </SelectItem>
             ))}
+        </SelectContent>
+        </Select>
+
+        {/* Batch Code Filter */}
+        <Select value={selectedBatchCode} onValueChange={onBatchCodeChange}>
+          <SelectTrigger className="w-[150px] input-glass h-11">
+            <Hash className="w-4 h-4 mr-2 text-muted-foreground" />
+            <SelectValue placeholder="All Batches" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Batches</SelectItem>
+            {batchCodes.map((code) => (
+              <SelectItem key={code} value={code}>
+                {code}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {/* Certificate Status Filter */}
+        <Select value={selectedCertificateStatus} onValueChange={onCertificateStatusChange}>
+          <SelectTrigger className="w-[160px] input-glass h-11">
+            <Award className="w-4 h-4 mr-2 text-muted-foreground" />
+            <SelectValue placeholder="Cert. Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Statuses</SelectItem>
+            <SelectItem value="Pending">Pending</SelectItem>
+            <SelectItem value="Issued">Issued</SelectItem>
+            <SelectItem value="Revoked">Revoked</SelectItem>
           </SelectContent>
         </Select>
 
