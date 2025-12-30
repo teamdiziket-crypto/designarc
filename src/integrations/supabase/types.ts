@@ -14,7 +14,119 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      certificates: {
+        Row: {
+          certificate_id: string
+          course: string
+          created_at: string
+          full_name: string
+          id: string
+          issue_date: string
+          pdf_url: string | null
+          status: string
+          student_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          certificate_id: string
+          course: string
+          created_at?: string
+          full_name: string
+          id?: string
+          issue_date?: string
+          pdf_url?: string | null
+          status?: string
+          student_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          certificate_id?: string
+          course?: string
+          created_at?: string
+          full_name?: string
+          id?: string
+          issue_date?: string
+          pdf_url?: string | null
+          status?: string
+          student_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "certificates_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      courses: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      students: {
+        Row: {
+          amount_paid: number
+          city: string
+          course: string
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          payment_mode: string
+          payment_status: string
+          pending_amount: number
+          row_id: number
+          updated_at: string
+          whatsapp_no: string
+        }
+        Insert: {
+          amount_paid?: number
+          city: string
+          course: string
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          payment_mode: string
+          payment_status: string
+          pending_amount?: number
+          row_id?: number
+          updated_at?: string
+          whatsapp_no: string
+        }
+        Update: {
+          amount_paid?: number
+          city?: string
+          course?: string
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          payment_mode?: string
+          payment_status?: string
+          pending_amount?: number
+          row_id?: number
+          updated_at?: string
+          whatsapp_no?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
