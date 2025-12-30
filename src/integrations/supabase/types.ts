@@ -68,6 +68,7 @@ export type Database = {
           id: string
           name: string
           short_name: string | null
+          template_url: string | null
         }
         Insert: {
           certificate_name?: string | null
@@ -75,6 +76,7 @@ export type Database = {
           id?: string
           name: string
           short_name?: string | null
+          template_url?: string | null
         }
         Update: {
           certificate_name?: string | null
@@ -82,6 +84,7 @@ export type Database = {
           id?: string
           name?: string
           short_name?: string | null
+          template_url?: string | null
         }
         Relationships: []
       }

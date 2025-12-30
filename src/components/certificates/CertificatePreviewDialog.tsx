@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Download, X } from 'lucide-react';
 import { Certificate } from '@/types/student';
 import CertificateTemplate from './CertificateTemplate';
+import { useCourses } from '@/contexts/CoursesContext';
 
 interface CertificatePreviewDialogProps {
   certificate: Certificate | null;
@@ -15,7 +16,11 @@ export function CertificatePreviewDialog({
   open,
   onOpenChange,
 }: CertificatePreviewDialogProps) {
+  const { getTemplateUrl } = useCourses();
+  
   if (!certificate) return null;
+
+  const templateUrl = getTemplateUrl(certificate.course);
 
   const handlePrint = () => {
     window.print();
@@ -44,6 +49,7 @@ export function CertificatePreviewDialog({
               course={certificate.course}
               issueDate={certificate.issueDate}
               certificateId={certificate.certificateId}
+              templateUrl={templateUrl}
             />
           </div>
         </div>

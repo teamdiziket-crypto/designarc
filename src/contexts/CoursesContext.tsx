@@ -6,6 +6,7 @@ interface Course {
   id: string;
   name: string;
   short_name: string | null;
+  template_url: string | null;
 }
 
 interface CoursesContextType {
@@ -14,7 +15,9 @@ interface CoursesContextType {
   loading: boolean;
   addCourse: (course: string) => Promise<boolean>;
   updateCourse: (id: string, newName: string, shortName?: string) => Promise<boolean>;
+  updateCourseTemplate: (id: string, templateUrl: string | null) => Promise<boolean>;
   getShortName: (courseName: string) => string;
+  getTemplateUrl: (courseName: string) => string | null;
   deleteCourse: (id: string) => Promise<void>;
 }
 
@@ -119,9 +122,31 @@ export function CoursesProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const updateCourseTemplate = async (id: string, templateUrl: string | null): Promise<boolean> => {
+    try {
+      const { error } = await supabase
+        .from('courses')
+        .update({ template_url: templateUrl })
+        .eq('id', id);
+
+      if (error) throw error;
+      toast.success('Template updated successfully');
+      return true;
+    } catch (error) {
+      console.error('Error updating template:', error);
+      toast.error('Failed to update template');
+      return false;
+    }
+  };
+
   const getShortName = (courseName: string): string => {
     const course = coursesData.find((c) => c.name === courseName);
     return course?.short_name || courseName.substring(0, 3).toUpperCase();
+  };
+
+  const getTemplateUrl = (courseName: string): string | null => {
+    const course = coursesData.find((c) => c.name === courseName);
+    return course?.template_url || null;
   };
 
   const deleteCourse = async (id: string): Promise<void> => {
@@ -136,7 +161,17 @@ export function CoursesProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <CoursesContext.Provider value={{ courses, coursesData, loading, addCourse, updateCourse, deleteCourse, getShortName }}>
+    <CoursesContext.Provider value={{ 
+      courses, 
+      coursesData, 
+      loading, 
+      addCourse, 
+      updateCourse, 
+      updateCourseTemplate,
+      deleteCourse, 
+      getShortName,
+      getTemplateUrl 
+    }}>
       {children}
     </CoursesContext.Provider>
   );
