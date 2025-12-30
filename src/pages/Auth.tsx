@@ -6,8 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { Loader2, GraduationCap } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { z } from 'zod';
+import logoFull from '@/assets/logo-full.png';
+import logoIcon from '@/assets/logo-icon.png';
 import { supabase } from '@/integrations/supabase/client';
 
 const authSchema = z.object({
@@ -140,11 +142,11 @@ export default function Auth() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4">
       <Card className="w-full max-w-md glass-card border-border/50">
         <CardHeader className="text-center space-y-4">
-          <div className="mx-auto w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-lg">
-            <GraduationCap className="w-8 h-8 text-primary-foreground" />
+          <div className="mx-auto flex flex-col items-center gap-3">
+            <img src={logoIcon} alt="Design Arc" className="w-16 h-16 rounded-2xl shadow-lg" />
+            <img src={logoFull} alt="Design Arc Academy" className="h-10 object-contain" />
           </div>
           <div>
-            <CardTitle className="text-2xl font-bold">Design Arc Academy</CardTitle>
             <CardDescription className="text-muted-foreground mt-2">
               {isSetupMode 
                 ? 'Create your first admin account to get started'
