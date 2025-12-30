@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Search, ShieldCheck, ShieldX, Award, Calendar, GraduationCap, Download, FileText, Hash } from 'lucide-react';
+import { Search, ShieldCheck, ShieldX, Award, Calendar, GraduationCap, Download, FileText, Hash, Eye } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { Certificate } from '@/types/student';
+import { CertificatePreviewDialog } from '@/components/certificates/CertificatePreviewDialog';
 import logoFull from '@/assets/logo-full.png';
 
 interface StudentCertificates {
@@ -19,6 +20,8 @@ export default function Home() {
   const [studentCertificates, setStudentCertificates] = useState<StudentCertificates | null>(null);
   const [searched, setSearched] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [selectedCertificate, setSelectedCertificate] = useState<Certificate | null>(null);
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
@@ -106,6 +109,11 @@ export default function Home() {
 
   const handleDownloadPDF = (pdfUrl: string) => {
     window.open(pdfUrl, '_blank');
+  };
+
+  const handleViewCertificate = (cert: Certificate) => {
+    setSelectedCertificate(cert);
+    setPreviewOpen(true);
   };
 
   return (
@@ -284,16 +292,26 @@ export default function Home() {
                       </p>
                     </div>
 
-                    {/* Download Buttons */}
-                    {certificateResult.status === 'Active' && certificateResult.pdfUrl && (
+                    {/* View/Download Buttons */}
+                    {certificateResult.status === 'Active' && (
                       <div className="flex gap-3 pt-4">
                         <Button
-                          onClick={() => handleDownloadPDF(certificateResult.pdfUrl!)}
-                          className="flex-1 btn-primary-gradient"
+                          onClick={() => handleViewCertificate(certificateResult)}
+                          variant="outline"
+                          className="flex-1 btn-glass"
                         >
-                          <FileText className="w-4 h-4 mr-2" />
-                          Download PDF
+                          <Eye className="w-4 h-4 mr-2" />
+                          View Certificate
                         </Button>
+                        {certificateResult.pdfUrl && (
+                          <Button
+                            onClick={() => handleDownloadPDF(certificateResult.pdfUrl!)}
+                            className="flex-1 btn-primary-gradient"
+                          >
+                            <Download className="w-4 h-4 mr-2" />
+                            Download PDF
+                          </Button>
+                        )}
                       </div>
                     )}
                   </div>
@@ -380,8 +398,16 @@ export default function Home() {
                               </div>
                             </div>
                           </div>
-                          {cert.pdfUrl && (
-                            <div className="flex gap-2">
+                          <div className="flex gap-2 flex-shrink-0">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleViewCertificate(cert)}
+                              className="btn-glass"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                            {cert.pdfUrl && (
                               <Button
                                 size="sm"
                                 onClick={() => handleDownloadPDF(cert.pdfUrl!)}
@@ -390,8 +416,8 @@ export default function Home() {
                                 <Download className="w-4 h-4 mr-1" />
                                 PDF
                               </Button>
-                            </div>
-                          )}
+                            )}
+                          </div>
                         </div>
                       </div>
                     ))
@@ -448,6 +474,13 @@ export default function Home() {
           © {new Date().getFullYear()} Design Arc Academy. All rights reserved.
         </div>
       </footer>
+
+      {/* Certificate Preview Dialog */}
+      <CertificatePreviewDialog
+        certificate={selectedCertificate}
+        open={previewOpen}
+        onOpenChange={setPreviewOpen}
+      />
     </div>
   );
 }
