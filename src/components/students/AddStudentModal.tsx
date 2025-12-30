@@ -16,7 +16,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { COURSES, Student, PaymentMode, PaymentStatus } from '@/types/student';
+import { Student, PaymentMode, PaymentStatus } from '@/types/student';
+import { useCourses } from '@/contexts/CoursesContext';
 import { toast } from 'sonner';
 
 interface AddStudentModalProps {
@@ -35,6 +36,7 @@ export function AddStudentModal({
   onSubmit,
   editStudent,
 }: AddStudentModalProps) {
+  const { courses } = useCourses();
   const [formData, setFormData] = useState({
     fullName: editStudent?.fullName || '',
     email: editStudent?.email || '',
@@ -144,7 +146,7 @@ export function AddStudentModal({
                 <SelectValue placeholder="Select a course" />
               </SelectTrigger>
               <SelectContent>
-                {COURSES.map((course) => (
+                {courses.map((course) => (
                   <SelectItem key={course} value={course}>
                     {course}
                   </SelectItem>

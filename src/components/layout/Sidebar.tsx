@@ -12,6 +12,7 @@ import {
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Students', href: '/students', icon: Users },
+  { name: 'Courses', href: '/courses', icon: GraduationCap },
   { name: 'Certificates', href: '/certificates', icon: Award },
   { name: 'Verify', href: '/verify', icon: ShieldCheck },
   { name: 'Settings', href: '/settings', icon: Settings },
