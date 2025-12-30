@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { AdminManagement } from '@/components/admin/AdminManagement';
 
 export default function Settings() {
   const [settings, setSettings] = useState({
@@ -66,6 +67,9 @@ Design Arc Academy Team`,
             Sync Sheet
           </Button>
         </div>
+
+        {/* Admin Management */}
+        <AdminManagement />
 
         {/* Institute Settings */}
         <div className="glass-card rounded-2xl p-6">

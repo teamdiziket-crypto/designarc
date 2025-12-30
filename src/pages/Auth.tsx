@@ -5,10 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { Loader2, GraduationCap } from 'lucide-react';
 import { z } from 'zod';
+import { supabase } from '@/integrations/supabase/client';
 
 const authSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
@@ -17,8 +17,10 @@ const authSchema = z.object({
 
 export default function Auth() {
   const navigate = useNavigate();
-  const { user, loading: authLoading, signIn, signUp } = useAuth();
+  const { user, loading: authLoading, signIn } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [isSetupMode, setIsSetupMode] = useState(false);
+  const [checkingSetup, setCheckingSetup] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
@@ -28,6 +30,33 @@ export default function Auth() {
       navigate('/dashboard');
     }
   }, [user, navigate]);
+
+  useEffect(() => {
+    // Check if any admin exists
+    const checkAdminExists = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('user_roles')
+          .select('id')
+          .eq('role', 'admin')
+          .limit(1);
+
+        if (error) {
+          console.error('Error checking admin:', error);
+          setIsSetupMode(false);
+        } else {
+          setIsSetupMode(!data || data.length === 0);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        setIsSetupMode(false);
+      } finally {
+        setCheckingSetup(false);
+      }
+    };
+
+    checkAdminExists();
+  }, []);
 
   const validateForm = () => {
     try {
@@ -67,27 +96,39 @@ export default function Auth() {
     }
   };
 
-  const handleSignUp = async (e: React.FormEvent) => {
+  const handleSetup = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
     
     setIsLoading(true);
-    const { error } = await signUp(email, password);
-    setIsLoading(false);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('seed-admin', {
+        body: { email, password },
+      });
 
-    if (error) {
-      if (error.message.includes('User already registered')) {
-        toast.error('This email is already registered. Please sign in.');
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      toast.success('Admin account created! Signing you in...');
+      
+      // Sign in with the new credentials
+      const { error: signInError } = await signIn(email, password);
+      
+      if (signInError) {
+        toast.error('Account created but could not sign in. Please try signing in manually.');
       } else {
-        toast.error(error.message);
+        navigate('/dashboard');
       }
-    } else {
-      toast.success('Account created successfully! You can now sign in.');
-      navigate('/dashboard');
+    } catch (error: any) {
+      console.error('Setup error:', error);
+      toast.error(error.message || 'Failed to create admin account');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  if (authLoading) {
+  if (authLoading || checkingSetup) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -105,115 +146,66 @@ export default function Auth() {
           <div>
             <CardTitle className="text-2xl font-bold">Design Arc Academy</CardTitle>
             <CardDescription className="text-muted-foreground mt-2">
-              Admin Portal - Sign in to manage students
+              {isSetupMode 
+                ? 'Create your first admin account to get started'
+                : 'Admin Portal - Sign in to manage students'
+              }
             </CardDescription>
           </div>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="signin" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="signin">Sign In</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="signin">
-              <form onSubmit={handleSignIn} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="signin-email">Email</Label>
-                  <Input
-                    id="signin-email"
-                    type="email"
-                    placeholder="admin@designarc.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="input-glass"
-                    disabled={isLoading}
-                  />
-                  {errors.email && (
-                    <p className="text-sm text-destructive">{errors.email}</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signin-password">Password</Label>
-                  <Input
-                    id="signin-password"
-                    type="password"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="input-glass"
-                    disabled={isLoading}
-                  />
-                  {errors.password && (
-                    <p className="text-sm text-destructive">{errors.password}</p>
-                  )}
-                </div>
-                <Button 
-                  type="submit" 
-                  className="w-full btn-primary-gradient"
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Signing in...
-                    </>
-                  ) : (
-                    'Sign In'
-                  )}
-                </Button>
-              </form>
-            </TabsContent>
-            
-            <TabsContent value="signup">
-              <form onSubmit={handleSignUp} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="signup-email">Email</Label>
-                  <Input
-                    id="signup-email"
-                    type="email"
-                    placeholder="admin@designarc.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="input-glass"
-                    disabled={isLoading}
-                  />
-                  {errors.email && (
-                    <p className="text-sm text-destructive">{errors.email}</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="signup-password">Password</Label>
-                  <Input
-                    id="signup-password"
-                    type="password"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="input-glass"
-                    disabled={isLoading}
-                  />
-                  {errors.password && (
-                    <p className="text-sm text-destructive">{errors.password}</p>
-                  )}
-                </div>
-                <Button 
-                  type="submit" 
-                  className="w-full btn-primary-gradient"
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Creating account...
-                    </>
-                  ) : (
-                    'Create Account'
-                  )}
-                </Button>
-              </form>
-            </TabsContent>
-          </Tabs>
+          <form onSubmit={isSetupMode ? handleSetup : handleSignIn} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="admin@designarc.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="input-glass"
+                disabled={isLoading}
+              />
+              {errors.email && (
+                <p className="text-sm text-destructive">{errors.email}</p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="input-glass"
+                disabled={isLoading}
+              />
+              {errors.password && (
+                <p className="text-sm text-destructive">{errors.password}</p>
+              )}
+            </div>
+            <Button 
+              type="submit" 
+              className="w-full btn-primary-gradient"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  {isSetupMode ? 'Creating Account...' : 'Signing in...'}
+                </>
+              ) : (
+                isSetupMode ? 'Create Admin Account' : 'Sign In'
+              )}
+            </Button>
+          </form>
+          <p className="text-center text-xs text-muted-foreground mt-6">
+            {isSetupMode 
+              ? 'This will be the superadmin account'
+              : 'Contact your administrator if you need access'
+            }
+          </p>
         </CardContent>
       </Card>
     </div>

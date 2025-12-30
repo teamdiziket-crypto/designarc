@@ -1,1 +1,13 @@
 project_id = "rosyleopbjggkqnrvbpf"
+
+[functions.create-admin]
+verify_jwt = true
+
+[functions.list-admins]
+verify_jwt = true
+
+[functions.delete-admin]
+verify_jwt = true
+
+[functions.seed-admin]
+verify_jwt = false
