@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { COURSES } from '@/types/student';
+import { useCourses } from '@/contexts/CoursesContext';
 
 interface StudentFiltersProps {
   searchQuery: string;
@@ -35,6 +35,8 @@ export function StudentFilters({
   onReset,
   onExport,
 }: StudentFiltersProps) {
+  const { courses } = useCourses();
+  
   return (
     <div className="glass-card rounded-2xl p-5 mb-6">
       <div className="flex flex-wrap items-center gap-4">
@@ -57,7 +59,7 @@ export function StudentFilters({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Courses</SelectItem>
-            {COURSES.map((course) => (
+            {courses.map((course) => (
               <SelectItem key={course} value={course}>
                 {course}
               </SelectItem>

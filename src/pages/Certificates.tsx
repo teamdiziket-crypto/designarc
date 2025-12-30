@@ -12,10 +12,12 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { mockCertificates } from '@/data/mockData';
-import { Certificate, COURSES } from '@/types/student';
+import { Certificate } from '@/types/student';
+import { useCourses } from '@/contexts/CoursesContext';
 import { toast } from 'sonner';
 
 export default function Certificates() {
+  const { courses } = useCourses();
   const [certificates, setCertificates] = useState<Certificate[]>(mockCertificates);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCourse, setSelectedCourse] = useState('all');
@@ -148,7 +150,7 @@ export default function Certificates() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Courses</SelectItem>
-                {COURSES.map((course) => (
+                {courses.map((course) => (
                   <SelectItem key={course} value={course}>
                     {course}
                   </SelectItem>
