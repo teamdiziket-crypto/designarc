@@ -53,11 +53,11 @@ export default function Home() {
           });
         }
       } else {
-        // Search by student email or name to get all their certificates
+        // Search by student email or phone to get all their certificates
         const { data: students, error: studentsError } = await supabase
           .from('students')
           .select('id, full_name, email')
-          .or(`email.ilike.%${searchQuery.trim()}%,full_name.ilike.%${searchQuery.trim()}%`)
+          .or(`email.ilike.%${searchQuery.trim()}%,whatsapp_no.ilike.%${searchQuery.trim()}%`)
           .limit(1);
 
         if (studentsError) throw studentsError;
@@ -186,7 +186,7 @@ export default function Home() {
                 placeholder={
                   searchType === 'certificate'
                     ? 'Enter Certificate ID (e.g., DAC-2024-UXD-00001)'
-                    : 'Enter your email or name'
+                    : 'Enter your email or phone number'
                 }
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -426,7 +426,7 @@ export default function Home() {
                     Student Not Found
                   </h3>
                   <p className="text-muted-foreground max-w-sm mx-auto">
-                    No student was found with the email or name "{searchQuery}". Please check and try again.
+                    No student was found with the email or phone number "{searchQuery}". Please check and try again.
                   </p>
                 </div>
               )
@@ -449,7 +449,7 @@ export default function Home() {
               </>
             ) : (
               <p>
-                Enter your registered email address or full name to view your certificates.
+                Enter your registered email or phone number to view your certificates.
               </p>
             )}
           </div>
