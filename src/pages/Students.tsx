@@ -10,12 +10,17 @@ import { Button } from '@/components/ui/button';
 import { useStudents } from '@/hooks/useStudents';
 import { Student } from '@/types/student';
 import { toast } from 'sonner';
+import { exportStudentsToCSV } from '@/utils/exportStudents';
 
 export default function Students() {
   const { students, loading, addStudent, updateStudent, deleteStudent, bulkDeleteStudents } = useStudents();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCourse, setSelectedCourse] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
+  const [customDateRange, setCustomDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({
+    from: undefined,
+    to: undefined,
+  });
   const [recordsPerPage, setRecordsPerPage] = useState(20);
   const [currentPage, setCurrentPage] = useState(1);
   const [addModalOpen, setAddModalOpen] = useState(false);
@@ -45,7 +50,21 @@ export default function Students() {
     }
 
     // Date filter
-    if (dateFilter !== 'all' && dateFilter !== 'custom') {
+    if (dateFilter === 'custom' && customDateRange.from) {
+      const fromDate = new Date(customDateRange.from);
+      fromDate.setHours(0, 0, 0, 0);
+      
+      if (customDateRange.to) {
+        const toDate = new Date(customDateRange.to);
+        toDate.setHours(23, 59, 59, 999);
+        filtered = filtered.filter((s) => {
+          const studentDate = new Date(s.timestamp);
+          return studentDate >= fromDate && studentDate <= toDate;
+        });
+      } else {
+        filtered = filtered.filter((s) => new Date(s.timestamp) >= fromDate);
+      }
+    } else if (dateFilter !== 'all' && dateFilter !== 'custom') {
       const days = parseInt(dateFilter);
       const cutoff = new Date();
       cutoff.setDate(cutoff.getDate() - days);
@@ -58,7 +77,7 @@ export default function Students() {
     );
 
     return filtered;
-  }, [students, searchQuery, selectedCourse, dateFilter]);
+  }, [students, searchQuery, selectedCourse, dateFilter, customDateRange]);
 
   const paginatedStudents = useMemo(() => {
     const start = (currentPage - 1) * recordsPerPage;
@@ -71,11 +90,17 @@ export default function Students() {
     setSearchQuery('');
     setSelectedCourse('all');
     setDateFilter('all');
+    setCustomDateRange({ from: undefined, to: undefined });
     setCurrentPage(1);
   };
 
   const handleExport = () => {
-    toast.success('Export started! Your file will be ready shortly.');
+    if (filteredStudents.length === 0) {
+      toast.error('No students to export');
+      return;
+    }
+    exportStudentsToCSV(filteredStudents, 'students_export');
+    toast.success(`Exported ${filteredStudents.length} students to CSV`);
   };
 
   const handleAddStudent = async (studentData: Partial<Student>) => {
@@ -160,6 +185,11 @@ export default function Students() {
           dateFilter={dateFilter}
           onDateFilterChange={(value) => {
             setDateFilter(value);
+            setCurrentPage(1);
+          }}
+          customDateRange={customDateRange}
+          onCustomDateRangeChange={(range) => {
+            setCustomDateRange(range);
             setCurrentPage(1);
           }}
           recordsPerPage={recordsPerPage}
