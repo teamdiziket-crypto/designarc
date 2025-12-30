@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
-import { Search, Filter, Award, Plus, Loader2 } from 'lucide-react';
+import { Search, Filter, Award, Loader2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { CertificateCard } from '@/components/certificates/CertificateCard';
 import { Input } from '@/components/ui/input';
@@ -11,6 +12,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { useCertificates } from '@/hooks/useCertificates';
 import { Certificate } from '@/types/student';
 import { useCourses } from '@/contexts/CoursesContext';
@@ -18,10 +29,12 @@ import { toast } from 'sonner';
 
 export default function Certificates() {
   const { courses } = useCourses();
-  const { certificates, loading, revokeCertificate } = useCertificates();
+  const { certificates, loading, revokeCertificate, deleteCertificate } = useCertificates();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCourse, setSelectedCourse] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [certificateToDelete, setCertificateToDelete] = useState<Certificate | null>(null);
 
   const filteredCertificates = useMemo(() => {
     let filtered = [...certificates];
@@ -56,19 +69,38 @@ export default function Certificates() {
   }, [certificates]);
 
   const handleView = (cert: Certificate) => {
-    toast.info(`Viewing certificate: ${cert.certificateId}`);
+    // Copy certificate ID to clipboard and show toast
+    navigator.clipboard.writeText(cert.certificateId);
+    toast.success(`Certificate ID copied: ${cert.certificateId}`);
   };
 
   const handleDownload = (cert: Certificate) => {
-    toast.success(`Downloading certificate: ${cert.certificateId}`);
+    if (cert.pdfUrl) {
+      window.open(cert.pdfUrl, '_blank');
+    } else {
+      toast.info('PDF not available yet. Template needs to be configured.');
+    }
   };
 
   const handleEmail = (cert: Certificate) => {
-    toast.success(`Email sent to ${cert.fullName}`);
+    toast.info('Email functionality will be available after template configuration.');
   };
 
   const handleRevoke = async (cert: Certificate) => {
     await revokeCertificate(cert.id);
+  };
+
+  const handleDeleteClick = (cert: Certificate) => {
+    setCertificateToDelete(cert);
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (certificateToDelete) {
+      await deleteCertificate(certificateToDelete.id);
+      setCertificateToDelete(null);
+    }
+    setDeleteConfirmOpen(false);
   };
 
   if (loading) {
@@ -92,10 +124,12 @@ export default function Certificates() {
               Manage and issue certificates for your students.
             </p>
           </div>
-          <Button className="btn-primary-gradient">
-            <Plus className="w-4 h-4 mr-2" />
-            Generate Certificate
-          </Button>
+          <Link to="/students">
+            <Button className="btn-primary-gradient">
+              <Award className="w-4 h-4 mr-2" />
+              Issue from Students
+            </Button>
+          </Link>
         </div>
 
         {/* Stats */}
@@ -208,10 +242,34 @@ export default function Certificates() {
             </div>
             <p className="text-lg font-medium text-foreground">No certificates found</p>
             <p className="text-muted-foreground mt-1">
-              Try adjusting your filters or generate new certificates.
+              Go to Students page to issue certificates.
             </p>
+            <Link to="/students">
+              <Button className="mt-4 btn-primary-gradient">
+                <Award className="w-4 h-4 mr-2" />
+                Go to Students
+              </Button>
+            </Link>
           </div>
         )}
+
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Certificate</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete this certificate? This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleConfirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </MainLayout>
   );
