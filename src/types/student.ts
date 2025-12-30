@@ -9,8 +9,8 @@ export interface Student {
   course: string; // Keep for backward compatibility, will use first course
   courses: string[]; // Multiple courses
   batchCode: string; // Batch code (e.g., "FS01, GD02")
-  paymentMode: 'UPI' | 'Razorpay' | 'Others';
-  paymentStatus: 'Paid' | 'Pending' | 'Partial';
+  paymentMode: 'UPI/Gpay/Phonepe/Paytm' | 'Website (Razorpay)' | 'Others';
+  paymentStatus: 'Paid' | 'Partial';
   amountPaid: number;
   pendingAmount: number;
   certificateStatus: 'Pending' | 'Issued' | 'Revoked';
@@ -45,8 +45,8 @@ export interface DashboardStats {
   totalPendingAmount: number;
 }
 
-export type PaymentStatus = 'Paid' | 'Pending' | 'Partial';
-export type PaymentMode = 'UPI' | 'Razorpay' | 'Others';
+export type PaymentStatus = 'Paid' | 'Partial';
+export type PaymentMode = 'UPI/Gpay/Phonepe/Paytm' | 'Website (Razorpay)' | 'Others';
 export type CertificateStatus = 'Pending' | 'Issued' | 'Revoked';
 
 export const COURSES = [

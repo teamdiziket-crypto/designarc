@@ -7,8 +7,8 @@ const generateRandomDate = (daysAgo: number): string => {
 };
 
 const cities = ['Mumbai', 'Delhi', 'Bangalore', 'Pune', 'Chennai', 'Hyderabad', 'Kolkata', 'Ahmedabad', 'Jaipur', 'Lucknow'];
-const paymentModes = ['UPI', 'Razorpay', 'Others'] as const;
-const paymentStatuses = ['Paid', 'Pending', 'Partial'] as const;
+const paymentModes = ['UPI/Gpay/Phonepe/Paytm', 'Website (Razorpay)', 'Others'] as const;
+const paymentStatuses = ['Paid', 'Partial'] as const;
 
 const firstNames = ['Aarav', 'Vivaan', 'Aditya', 'Vihaan', 'Arjun', 'Sai', 'Reyansh', 'Ayaan', 'Krishna', 'Ishaan', 'Ananya', 'Diya', 'Aanya', 'Aadhya', 'Saanvi', 'Myra', 'Isha', 'Kiara', 'Riya', 'Pari'];
 const lastNames = ['Sharma', 'Patel', 'Singh', 'Kumar', 'Reddy', 'Gupta', 'Nair', 'Joshi', 'Verma', 'Rao', 'Mehta', 'Agarwal', 'Iyer', 'Desai', 'Pillai'];
@@ -25,10 +25,7 @@ const generateStudents = (count: number): Student[] => {
     let amountPaid = totalAmount;
     let pendingAmount = 0;
     
-    if (paymentStatus === 'Pending') {
-      amountPaid = 0;
-      pendingAmount = totalAmount;
-    } else if (paymentStatus === 'Partial') {
+    if (paymentStatus === 'Partial') {
       amountPaid = Math.floor(totalAmount * (0.3 + Math.random() * 0.4));
       pendingAmount = totalAmount - amountPaid;
     }
