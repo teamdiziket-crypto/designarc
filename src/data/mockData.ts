@@ -7,7 +7,7 @@ const generateRandomDate = (daysAgo: number): string => {
 };
 
 const cities = ['Mumbai', 'Delhi', 'Bangalore', 'Pune', 'Chennai', 'Hyderabad', 'Kolkata', 'Ahmedabad', 'Jaipur', 'Lucknow'];
-const paymentModes = ['Cash', 'UPI', 'Bank Transfer', 'Card'] as const;
+const paymentModes = ['UPI', 'Razorpay', 'Others'] as const;
 const paymentStatuses = ['Paid', 'Pending', 'Partial'] as const;
 
 const firstNames = ['Aarav', 'Vivaan', 'Aditya', 'Vihaan', 'Arjun', 'Sai', 'Reyansh', 'Ayaan', 'Krishna', 'Ishaan', 'Ananya', 'Diya', 'Aanya', 'Aadhya', 'Saanvi', 'Myra', 'Isha', 'Kiara', 'Riya', 'Pari'];

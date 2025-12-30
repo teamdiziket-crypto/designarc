@@ -28,7 +28,7 @@ interface AddStudentModalProps {
   editStudent?: Student | null;
 }
 
-const paymentModes: PaymentMode[] = ['Cash', 'UPI', 'Bank Transfer', 'Card', 'Other'];
+const paymentModes: PaymentMode[] = ['UPI', 'Razorpay', 'Others'];
 const paymentStatuses: PaymentStatus[] = ['Paid', 'Pending', 'Partial'];
 
 export function AddStudentModal({
