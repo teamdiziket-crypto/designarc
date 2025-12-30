@@ -97,6 +97,24 @@ export function StudentRegistrationForm() {
     setIsLoading(true);
 
     try {
+      // Check for duplicate entry by email or WhatsApp number
+      const { data: existingStudent, error: checkError } = await supabase
+        .from('students')
+        .select('id, email, whatsapp_no')
+        .or(`email.eq.${data.email.trim().toLowerCase()},whatsapp_no.eq.${data.whatsapp_no.trim()}`)
+        .maybeSingle();
+
+      if (checkError) throw checkError;
+
+      if (existingStudent) {
+        const duplicateField = existingStudent.email === data.email.trim().toLowerCase() 
+          ? 'email address' 
+          : 'WhatsApp number';
+        toast.error(`A student with this ${duplicateField} is already registered.`);
+        setIsLoading(false);
+        return;
+      }
+
       const { error } = await supabase.from('students').insert({
         full_name: data.full_name.trim(),
         whatsapp_no: data.whatsapp_no.trim(),
@@ -129,14 +147,17 @@ export function StudentRegistrationForm() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4">
         <Card className="w-full max-w-md glass-card border-border/50 text-center">
           <CardContent className="pt-10 pb-10">
+            <div className="mx-auto mb-6">
+              <img src={logoFull} alt="Design Arc Academy" className="h-12 object-contain mx-auto" />
+            </div>
             <CheckCircle className="w-16 h-16 text-success mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-foreground mb-2">Registration Successful!</h2>
-            <p className="text-muted-foreground mb-6">
-              Thank you for registering. We will contact you soon with further details.
+            <h2 className="text-2xl font-bold text-foreground mb-4">Thank you for registering.</h2>
+            <p className="text-muted-foreground text-lg">
+              Your registration has been successfully received.
             </p>
-            <Button onClick={() => setIsSuccess(false)} className="btn-primary-gradient">
-              Register Another Student
-            </Button>
+            <p className="text-primary font-medium mt-4 text-lg">
+              Happy Learning with Design Arc Academy.
+            </p>
           </CardContent>
         </Card>
       </div>
