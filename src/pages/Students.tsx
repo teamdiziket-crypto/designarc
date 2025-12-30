@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Trash2 } from 'lucide-react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { StudentFilters } from '@/components/students/StudentFilters';
 import { StudentTable } from '@/components/students/StudentTable';
@@ -21,6 +21,8 @@ export default function Students() {
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editStudent, setEditStudent] = useState<Student | null>(null);
   const [deleteStudent, setDeleteStudent] = useState<Student | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 
   const filteredStudents = useMemo(() => {
     let filtered = [...students];
@@ -111,6 +113,13 @@ export default function Students() {
     setDeleteStudent(null);
   };
 
+  const handleBulkDelete = () => {
+    setStudents((prev) => prev.filter((s) => !selectedIds.has(s.id)));
+    toast.success(`${selectedIds.size} students deleted successfully`);
+    setSelectedIds(new Set());
+    setBulkDeleteOpen(false);
+  };
+
   return (
     <MainLayout>
       <div className="space-y-6">
@@ -122,16 +131,27 @@ export default function Students() {
               Manage your student directory and enrollment records.
             </p>
           </div>
-          <Button
-            onClick={() => {
-              setEditStudent(null);
-              setAddModalOpen(true);
-            }}
-            className="btn-primary-gradient"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Add Student
-          </Button>
+          <div className="flex items-center gap-3">
+            {selectedIds.size > 0 && (
+              <Button
+                variant="destructive"
+                onClick={() => setBulkDeleteOpen(true)}
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Delete ({selectedIds.size})
+              </Button>
+            )}
+            <Button
+              onClick={() => {
+                setEditStudent(null);
+                setAddModalOpen(true);
+              }}
+              className="btn-primary-gradient"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add Student
+            </Button>
+          </div>
         </div>
 
         {/* Filters */}
@@ -177,6 +197,8 @@ export default function Students() {
         <div>
           <StudentTable
             students={paginatedStudents}
+            selectedIds={selectedIds}
+            onSelectionChange={setSelectedIds}
             onEdit={(student) => {
               setEditStudent(student);
               setAddModalOpen(true);
@@ -209,6 +231,13 @@ export default function Students() {
           onOpenChange={(open) => !open && setDeleteStudent(null)}
           student={deleteStudent}
           onConfirm={handleDeleteStudent}
+        />
+
+        <DeleteConfirmModal
+          open={bulkDeleteOpen}
+          onOpenChange={setBulkDeleteOpen}
+          bulkCount={selectedIds.size}
+          onConfirm={handleBulkDelete}
         />
       </div>
     </MainLayout>
