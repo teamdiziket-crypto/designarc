@@ -85,8 +85,10 @@ export type Database = {
       students: {
         Row: {
           amount_paid: number
+          batch_code: string | null
           city: string
           course: string
+          courses: string[] | null
           created_at: string
           email: string
           full_name: string
@@ -100,8 +102,10 @@ export type Database = {
         }
         Insert: {
           amount_paid?: number
+          batch_code?: string | null
           city: string
           course: string
+          courses?: string[] | null
           created_at?: string
           email: string
           full_name: string
@@ -115,8 +119,10 @@ export type Database = {
         }
         Update: {
           amount_paid?: number
+          batch_code?: string | null
           city?: string
           course?: string
+          courses?: string[] | null
           created_at?: string
           email?: string
           full_name?: string

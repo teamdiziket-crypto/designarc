@@ -11,6 +11,8 @@ interface DbStudent {
   whatsapp_no: string;
   city: string;
   course: string;
+  courses: string[] | null;
+  batch_code: string | null;
   payment_mode: string;
   payment_status: string;
   amount_paid: number;
@@ -27,7 +29,9 @@ const mapDbToStudent = (db: DbStudent): Student => ({
   email: db.email,
   whatsappNo: db.whatsapp_no,
   city: db.city,
-  course: db.course,
+  course: db.courses?.[0] || db.course, // Use first course from array or fallback to old course
+  courses: db.courses || (db.course ? [db.course] : []),
+  batchCode: db.batch_code || '',
   paymentMode: db.payment_mode as Student['paymentMode'],
   paymentStatus: db.payment_status as Student['paymentStatus'],
   amountPaid: Number(db.amount_paid),
@@ -97,7 +101,9 @@ export function useStudents() {
         email: studentData.email,
         whatsapp_no: studentData.whatsappNo,
         city: studentData.city,
-        course: studentData.course,
+        course: studentData.courses?.[0] || studentData.course,
+        courses: studentData.courses || (studentData.course ? [studentData.course] : []),
+        batch_code: studentData.batchCode || null,
         payment_mode: studentData.paymentMode,
         payment_status: studentData.paymentStatus,
         amount_paid: studentData.amountPaid || 0,
@@ -123,7 +129,9 @@ export function useStudents() {
           email: studentData.email,
           whatsapp_no: studentData.whatsappNo,
           city: studentData.city,
-          course: studentData.course,
+          course: studentData.courses?.[0] || studentData.course,
+          courses: studentData.courses || (studentData.course ? [studentData.course] : []),
+          batch_code: studentData.batchCode || null,
           payment_mode: studentData.paymentMode,
           payment_status: studentData.paymentStatus,
           amount_paid: studentData.amountPaid,

@@ -104,7 +104,8 @@ export function StudentTable({ students, selectedIds, onSelectionChange, onEdit,
             <TableHead className="w-12">#</TableHead>
             <TableHead>Student</TableHead>
             <TableHead>WhatsApp</TableHead>
-            <TableHead>Course</TableHead>
+            <TableHead>Courses</TableHead>
+            <TableHead>Batch Code</TableHead>
             <TableHead>City</TableHead>
             <TableHead>Payment</TableHead>
             <TableHead className="text-right">Paid</TableHead>
@@ -144,8 +145,17 @@ export function StudentTable({ students, selectedIds, onSelectionChange, onEdit,
                 </span>
               </TableCell>
               <TableCell>
-                <span className="px-2.5 py-1 rounded-lg bg-secondary text-secondary-foreground text-xs font-bold whitespace-nowrap">
-                  {getShortName(student.course)}
+                <div className="flex flex-wrap gap-1">
+                  {student.courses.map((course, idx) => (
+                    <span key={idx} className="px-2 py-0.5 rounded-md bg-secondary text-secondary-foreground text-xs font-bold whitespace-nowrap">
+                      {getShortName(course)}
+                    </span>
+                  ))}
+                </div>
+              </TableCell>
+              <TableCell>
+                <span className="text-sm text-muted-foreground whitespace-nowrap">
+                  {student.batchCode || '—'}
                 </span>
               </TableCell>
               <TableCell className="text-muted-foreground">
