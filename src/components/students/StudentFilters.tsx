@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Search, Filter, Calendar, RotateCcw, Download, Award, Hash } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { Search, Filter, Calendar, RotateCcw, Download, Award, Hash, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
@@ -59,6 +59,15 @@ export function StudentFilters({
 }: StudentFiltersProps) {
   const { courses } = useCourses();
   const [calendarOpen, setCalendarOpen] = useState(false);
+  const [batchSearch, setBatchSearch] = useState('');
+  const [batchDropdownOpen, setBatchDropdownOpen] = useState(false);
+
+  const filteredBatchCodes = useMemo(() => {
+    if (!batchSearch) return batchCodes;
+    return batchCodes.filter(code => 
+      code.toLowerCase().includes(batchSearch.toLowerCase())
+    );
+  }, [batchCodes, batchSearch]);
   
   const handleDateFilterChange = (value: string) => {
     onDateFilterChange(value);
@@ -86,6 +95,17 @@ export function StudentFilters({
       case '28': return 'Last 28 Days';
       default: return 'All Time';
     }
+  };
+
+  const handleBatchSelect = (code: string) => {
+    onBatchCodeChange(code);
+    setBatchSearch('');
+    setBatchDropdownOpen(false);
+  };
+
+  const clearBatchFilter = () => {
+    onBatchCodeChange('all');
+    setBatchSearch('');
   };
   
   return (
@@ -118,21 +138,67 @@ export function StudentFilters({
         </SelectContent>
         </Select>
 
-        {/* Batch Code Filter */}
-        <Select value={selectedBatchCode} onValueChange={onBatchCodeChange}>
-          <SelectTrigger className="w-[150px] input-glass h-11">
-            <Hash className="w-4 h-4 mr-2 text-muted-foreground" />
-            <SelectValue placeholder="All Batches" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Batches</SelectItem>
-            {batchCodes.map((code) => (
-              <SelectItem key={code} value={code}>
-                {code}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        {/* Batch Code Filter with Autocomplete */}
+        <div className="relative">
+          <div className="relative">
+            <Hash className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
+            <Input
+              placeholder="All Batches"
+              value={selectedBatchCode === 'all' ? batchSearch : selectedBatchCode}
+              onChange={(e) => {
+                setBatchSearch(e.target.value);
+                setBatchDropdownOpen(true);
+                if (!e.target.value) {
+                  onBatchCodeChange('all');
+                }
+              }}
+              onFocus={() => setBatchDropdownOpen(true)}
+              className="w-[150px] pl-9 pr-8 input-glass h-11"
+            />
+            {selectedBatchCode !== 'all' && (
+              <button
+                type="button"
+                onClick={clearBatchFilter}
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-muted rounded"
+              >
+                <X className="w-3 h-3 text-muted-foreground" />
+              </button>
+            )}
+          </div>
+          {batchDropdownOpen && (
+            <div className="absolute top-full left-0 mt-1 w-[180px] bg-popover border border-border rounded-lg shadow-lg z-50 max-h-48 overflow-y-auto">
+              <button
+                type="button"
+                onClick={() => handleBatchSelect('all')}
+                className="w-full px-3 py-2 text-left text-sm hover:bg-muted transition-colors"
+              >
+                All Batches
+              </button>
+              {filteredBatchCodes.length > 0 ? (
+                filteredBatchCodes.map((code) => (
+                  <button
+                    key={code}
+                    type="button"
+                    onClick={() => handleBatchSelect(code)}
+                    className="w-full px-3 py-2 text-left text-sm hover:bg-muted transition-colors"
+                  >
+                    {code}
+                  </button>
+                ))
+              ) : (
+                <div className="px-3 py-2 text-sm text-muted-foreground">
+                  No batches found
+                </div>
+              )}
+            </div>
+          )}
+          {batchDropdownOpen && (
+            <div 
+              className="fixed inset-0 z-40" 
+              onClick={() => setBatchDropdownOpen(false)}
+            />
+          )}
+        </div>
 
         {/* Certificate Status Filter */}
         <Select value={selectedCertificateStatus} onValueChange={onCertificateStatusChange}>
