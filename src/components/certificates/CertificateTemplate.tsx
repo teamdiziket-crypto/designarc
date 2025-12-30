@@ -22,8 +22,8 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
   // Extract year from issue date
   const year = new Date(issueDate).getFullYear() || 2025;
   
-  // Format issue date
-  const formattedDate = new Date(issueDate).toLocaleDateString('en-IN', {
+  // Format issue date as DD Month YYYY
+  const formattedDate = new Date(issueDate).toLocaleDateString('en-GB', {
     day: '2-digit',
     month: 'long',
     year: 'numeric',
@@ -31,8 +31,11 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
 
   return (
     <div 
-      className="relative bg-white w-[794px] h-[1123px] mx-auto overflow-hidden"
-      style={{ fontFamily: 'Times New Roman, serif' }}
+      className="relative w-[794px] h-[1123px] mx-auto overflow-hidden"
+      style={{ 
+        fontFamily: 'Montserrat, sans-serif',
+        backgroundColor: '#FFF7ED',
+      }}
     >
       {/* Header Background */}
       <div className="absolute top-0 left-0 right-0 h-[140px]">
@@ -43,28 +46,26 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
         />
       </div>
 
-      {/* Logo */}
+      {/* Logo - Top left */}
       <div className="absolute top-[25px] left-[40px] z-10">
         <img 
           src={logoImg} 
           alt="Design Arc Academy" 
-          className="h-[90px] w-auto"
+          className="h-[90px] w-auto max-w-[220px]"
         />
       </div>
 
       {/* Year Badge */}
       <div className="absolute top-[10px] right-[60px] z-10">
-        <div className="relative">
-          <img 
-            src={yearBadgeImg} 
-            alt={`Year of ${year}`} 
-            className="h-[160px] w-auto"
-          />
-        </div>
+        <img 
+          src={yearBadgeImg} 
+          alt={`Year of ${year}`} 
+          className="h-[160px] w-auto"
+        />
       </div>
 
-      {/* Arc Watermark */}
-      <div className="absolute top-[180px] left-[60px] opacity-20 z-0">
+      {/* Arc Watermark - Opacity 12-18% */}
+      <div className="absolute top-[180px] left-[60px] z-0" style={{ opacity: 0.15 }}>
         <img 
           src={arcWatermarkImg} 
           alt="" 
@@ -74,99 +75,128 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
 
       {/* Main Content */}
       <div className="relative z-10 pt-[180px] px-[60px] text-center">
-        {/* Certificate Title */}
+        {/* Certificate Title - Montserrat Medium */}
         <h1 
-          className="text-[72px] italic font-normal mb-0"
+          className="text-[34px] tracking-[2px] uppercase mb-[8px]"
           style={{ 
-            fontFamily: 'Georgia, serif',
-            background: 'linear-gradient(90deg, #B8860B 0%, #DAA520 50%, #B8860B 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
+            fontFamily: 'Montserrat, sans-serif',
+            fontWeight: 500,
+            color: '#92400E',
           }}
         >
-          CERTIFICATE
+          CERTIFICATE OF COMPLETION
         </h1>
 
-        {/* Of Completion */}
+        {/* Supporting Text - Montserrat Regular */}
         <p 
-          className="text-[24px] tracking-[8px] text-[#333] mt-[-10px] mb-[30px]"
-          style={{ fontFamily: 'Georgia, serif' }}
+          className="text-[22px] mb-[30px]"
+          style={{ 
+            fontFamily: 'Montserrat, sans-serif',
+            fontWeight: 400,
+            color: '#374151',
+          }}
         >
-          OF COMPLETION
+          This certificate is awarded to
         </p>
 
-        {/* Certification Text */}
-        <p 
-          className="text-[18px] text-[#666] italic mb-[40px]"
-          style={{ fontFamily: 'Georgia, serif' }}
-        >
-          This is to certify that
-        </p>
-
-        {/* Student Name */}
-        <div className="mb-[20px]">
+        {/* Student Name - Playfair Display Semi-Bold (Primary Element) */}
+        <div className="mb-[25px]">
           <p 
-            className="text-[36px] font-semibold text-[#333] border-b-2 border-[#DAA520] inline-block px-[40px] pb-[5px] min-w-[400px]"
-            style={{ fontFamily: 'Georgia, serif' }}
+            className="text-[64px] inline-block border-b-2 px-[40px] pb-[8px] min-w-[450px]"
+            style={{ 
+              fontFamily: "'Playfair Display', serif",
+              fontWeight: 600,
+              color: '#1F2937',
+              letterSpacing: '1.5px',
+              borderColor: '#DAA520',
+            }}
           >
             {fullName || 'Student Name'}
           </p>
         </div>
 
-        {/* Completion Text */}
+        {/* Completion Text - Montserrat Regular */}
         <p 
-          className="text-[18px] text-[#666] italic mb-[20px]"
-          style={{ fontFamily: 'Georgia, serif' }}
+          className="text-[22px] mb-[20px]"
+          style={{ 
+            fontFamily: 'Montserrat, sans-serif',
+            fontWeight: 400,
+            color: '#374151',
+          }}
         >
           has successfully completed the
         </p>
 
-        {/* Course Name */}
+        {/* Course Name - Montserrat Semi-Bold */}
         <h2 
-          className="text-[28px] font-bold text-[#333] mb-[20px] tracking-[2px]"
-          style={{ fontFamily: 'Arial, sans-serif' }}
+          className="text-[40px] mb-[25px] tracking-[2px]"
+          style={{ 
+            fontFamily: 'Montserrat, sans-serif',
+            fontWeight: 600,
+            color: '#111827',
+          }}
         >
           {course?.toUpperCase() || 'COURSE NAME'}
         </h2>
 
-        {/* Achievement Text */}
+        {/* Achievement Text - Montserrat Regular */}
         <p 
-          className="text-[16px] text-[#666] leading-[1.8] max-w-[550px] mx-auto mb-[60px]"
-          style={{ fontFamily: 'Georgia, serif' }}
+          className="text-[18px] leading-[1.8] max-w-[550px] mx-auto mb-[50px]"
+          style={{ 
+            fontFamily: 'Montserrat, sans-serif',
+            fontWeight: 400,
+            color: '#374151',
+          }}
         >
           demonstrating dedication, proficiency, and a deep understanding of the subject matter, and is hereby awarded this certificate of achievement.
         </p>
 
         {/* Bottom Section */}
-        <div className="flex justify-between items-start px-[20px] mt-[40px]">
+        <div className="flex justify-between items-start px-[20px] mt-[30px]">
           {/* Date of Issue */}
           <div className="text-left">
             <p 
-              className="text-[14px] font-bold text-[#333] tracking-[2px] mb-[15px]"
-              style={{ fontFamily: 'Arial, sans-serif' }}
+              className="text-[14px] tracking-[2px] mb-[12px] uppercase"
+              style={{ 
+                fontFamily: 'Montserrat, sans-serif',
+                fontWeight: 700,
+                color: '#111827',
+              }}
             >
               DATE OF ISSUE
             </p>
             <p 
-              className="text-[16px] text-[#666]"
-              style={{ fontFamily: 'Georgia, serif' }}
+              className="text-[18px] mb-[8px]"
+              style={{ 
+                fontFamily: 'Montserrat, sans-serif',
+                fontWeight: 400,
+                color: '#4B5563',
+              }}
             >
               {formattedDate}
             </p>
+            {/* Certificate ID - Monospace */}
             <p 
-              className="text-[12px] text-[#999] mt-[10px]"
-              style={{ fontFamily: 'Arial, sans-serif' }}
+              className="text-[14px]"
+              style={{ 
+                fontFamily: "'JetBrains Mono', monospace",
+                fontWeight: 400,
+                color: '#6B7280',
+              }}
             >
-              ID: {certificateId}
+              Certificate ID: {certificateId}
             </p>
           </div>
 
           {/* Validated By */}
           <div className="text-right">
             <p 
-              className="text-[14px] font-bold text-[#333] tracking-[2px] mb-[10px]"
-              style={{ fontFamily: 'Arial, sans-serif' }}
+              className="text-[14px] tracking-[2px] mb-[10px] uppercase"
+              style={{ 
+                fontFamily: 'Montserrat, sans-serif',
+                fontWeight: 700,
+                color: '#111827',
+              }}
             >
               VALIDATED BY
             </p>
@@ -176,33 +206,57 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
               className="h-[50px] w-auto ml-auto mb-[5px]"
             />
             <p 
-              className="text-[16px] font-bold text-[#333]"
-              style={{ fontFamily: 'Arial, sans-serif' }}
+              className="text-[16px]"
+              style={{ 
+                fontFamily: 'Montserrat, sans-serif',
+                fontWeight: 700,
+                color: '#111827',
+              }}
             >
               AMOL S.N.
             </p>
             <p 
-              className="text-[13px] text-[#666]"
-              style={{ fontFamily: 'Georgia, serif' }}
+              className="text-[13px]"
+              style={{ 
+                fontFamily: 'Montserrat, sans-serif',
+                fontWeight: 400,
+                color: '#4B5563',
+              }}
             >
               Founder & CEO
             </p>
             <p 
-              className="text-[13px] text-[#666]"
-              style={{ fontFamily: 'Georgia, serif' }}
+              className="text-[13px]"
+              style={{ 
+                fontFamily: 'Montserrat, sans-serif',
+                fontWeight: 400,
+                color: '#4B5563',
+              }}
             >
               Design Arc Academy
             </p>
           </div>
         </div>
+
+        {/* Verification Text */}
+        <p 
+          className="text-[12px] mt-[40px]"
+          style={{ 
+            fontFamily: 'Montserrat, sans-serif',
+            fontWeight: 400,
+            color: '#6B7280',
+          }}
+        >
+          Verify this certificate at: designarcacademy.com/verify
+        </p>
       </div>
 
       {/* Footer Bar */}
-      <div className="absolute bottom-0 left-0 right-0">
+      <div className="absolute bottom-0 left-0 right-0 h-[40px]">
         <img 
           src={footerBarImg} 
           alt="" 
-          className="w-full h-[40px] object-cover"
+          className="w-full h-full object-cover"
         />
         <div 
           className="absolute inset-0 flex items-center justify-center"
@@ -211,8 +265,11 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
           }}
         >
           <p 
-            className="text-white text-[14px] tracking-[4px] font-semibold"
-            style={{ fontFamily: 'Arial, sans-serif' }}
+            className="text-white text-[14px] tracking-[4px]"
+            style={{ 
+              fontFamily: 'Montserrat, sans-serif',
+              fontWeight: 600,
+            }}
           >
             DESIGN ARC ACADEMY {year}
           </p>
