@@ -39,19 +39,37 @@ export function AddStudentModal({
 }: AddStudentModalProps) {
   const { courses, coursesData, getShortName } = useCourses();
   const [formData, setFormData] = useState({
-    fullName: editStudent?.fullName || '',
-    email: editStudent?.email || '',
-    whatsappNo: editStudent?.whatsappNo || '',
-    city: editStudent?.city || '',
-    selectedCourses: editStudent?.courses || (editStudent?.course ? [editStudent.course] : []),
-    batchCode: editStudent?.batchCode || '',
-    paymentMode: editStudent?.paymentMode || 'UPI',
-    paymentStatus: editStudent?.paymentStatus || 'Pending',
-    amountPaid: editStudent?.amountPaid || 0,
-    pendingAmount: editStudent?.pendingAmount || 0,
+    fullName: '',
+    email: '',
+    whatsappNo: '',
+    city: '',
+    selectedCourses: [] as string[],
+    batchCode: '',
+    paymentMode: 'UPI' as PaymentMode,
+    paymentStatus: 'Pending' as PaymentStatus,
+    amountPaid: 0,
+    pendingAmount: 0,
   });
 
-  // Auto-generate batch code when courses change
+  // Reset form when editStudent changes or modal opens
+  useEffect(() => {
+    if (open) {
+      setFormData({
+        fullName: editStudent?.fullName || '',
+        email: editStudent?.email || '',
+        whatsappNo: editStudent?.whatsappNo || '',
+        city: editStudent?.city || '',
+        selectedCourses: editStudent?.courses || (editStudent?.course ? [editStudent.course] : []),
+        batchCode: editStudent?.batchCode || '',
+        paymentMode: editStudent?.paymentMode || 'UPI',
+        paymentStatus: editStudent?.paymentStatus || 'Pending',
+        amountPaid: editStudent?.amountPaid || 0,
+        pendingAmount: editStudent?.pendingAmount || 0,
+      });
+    }
+  }, [open, editStudent]);
+
+  // Auto-generate batch code when courses change (only for new students)
   useEffect(() => {
     if (formData.selectedCourses.length > 0 && !editStudent) {
       const batchCodes = formData.selectedCourses.map((courseName, idx) => {
