@@ -13,7 +13,7 @@ interface StudentCertificates {
 }
 
 export default function Home() {
-  const [searchType, setSearchType] = useState<'certificate' | 'student'>('certificate');
+  const [searchType, setSearchType] = useState<'certificate' | 'student'>('student');
   const [searchQuery, setSearchQuery] = useState('');
   const [certificateResult, setCertificateResult] = useState<Certificate | null>(null);
   const [studentCertificates, setStudentCertificates] = useState<StudentCertificates | null>(null);
@@ -134,20 +134,6 @@ export default function Home() {
         {/* Search Type Toggle */}
         <div className="flex justify-center gap-2">
           <Button
-            variant={searchType === 'certificate' ? 'default' : 'outline'}
-            onClick={() => {
-              setSearchType('certificate');
-              setSearchQuery('');
-              setSearched(false);
-              setCertificateResult(null);
-              setStudentCertificates(null);
-            }}
-            className={searchType === 'certificate' ? 'btn-primary-gradient' : 'btn-glass'}
-          >
-            <Hash className="w-4 h-4 mr-2" />
-            Verify by Certificate ID
-          </Button>
-          <Button
             variant={searchType === 'student' ? 'default' : 'outline'}
             onClick={() => {
               setSearchType('student');
@@ -160,6 +146,20 @@ export default function Home() {
           >
             <GraduationCap className="w-4 h-4 mr-2" />
             My Certificates
+          </Button>
+          <Button
+            variant={searchType === 'certificate' ? 'default' : 'outline'}
+            onClick={() => {
+              setSearchType('certificate');
+              setSearchQuery('');
+              setSearched(false);
+              setCertificateResult(null);
+              setStudentCertificates(null);
+            }}
+            className={searchType === 'certificate' ? 'btn-primary-gradient' : 'btn-glass'}
+          >
+            <Hash className="w-4 h-4 mr-2" />
+            Verify Certificate
           </Button>
         </div>
 
