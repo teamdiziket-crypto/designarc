@@ -7,6 +7,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
@@ -28,8 +29,8 @@ interface AddStudentModalProps {
   editStudent?: Student | null;
 }
 
-const paymentModes: PaymentMode[] = ['UPI', 'Razorpay', 'Others'];
-const paymentStatuses: PaymentStatus[] = ['Paid', 'Pending', 'Partial'];
+const paymentModes: PaymentMode[] = ['UPI/Gpay/Phonepe/Paytm', 'Website (Razorpay)', 'Others'];
+const paymentStatuses: PaymentStatus[] = ['Paid', 'Partial'];
 const certificateStatuses: CertificateStatus[] = ['Pending', 'Issued', 'Revoked'];
 
 export function AddStudentModal({
@@ -46,8 +47,8 @@ export function AddStudentModal({
     city: '',
     selectedCourses: [] as string[],
     batchCode: '',
-    paymentMode: 'UPI' as PaymentMode,
-    paymentStatus: 'Pending' as PaymentStatus,
+    paymentMode: 'UPI/Gpay/Phonepe/Paytm' as PaymentMode,
+    paymentStatus: 'Paid' as PaymentStatus,
     amountPaid: 0,
     pendingAmount: 0,
     certificateStatus: 'Pending' as CertificateStatus,
@@ -63,8 +64,8 @@ export function AddStudentModal({
         city: editStudent?.city || '',
         selectedCourses: editStudent?.courses || (editStudent?.course ? [editStudent.course] : []),
         batchCode: editStudent?.batchCode || '',
-        paymentMode: editStudent?.paymentMode || 'UPI',
-        paymentStatus: editStudent?.paymentStatus || 'Pending',
+        paymentMode: (editStudent?.paymentMode as PaymentMode) || 'UPI/Gpay/Phonepe/Paytm',
+        paymentStatus: (editStudent?.paymentStatus as PaymentStatus) || 'Paid',
         amountPaid: editStudent?.amountPaid || 0,
         pendingAmount: editStudent?.pendingAmount || 0,
         certificateStatus: editStudent?.certificateStatus || 'Pending',
@@ -121,6 +122,9 @@ export function AddStudentModal({
           <DialogTitle className="text-xl font-bold">
             {isEditing ? 'Edit Student' : 'Add New Student'}
           </DialogTitle>
+          <DialogDescription>
+            {isEditing ? 'Update the student details below.' : 'Fill in the details to add a new student.'}
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-5 mt-4">

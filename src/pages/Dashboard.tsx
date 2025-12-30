@@ -259,8 +259,6 @@ export default function Dashboard() {
                     className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                       student.paymentStatus === 'Paid'
                         ? 'badge-paid'
-                        : student.paymentStatus === 'Pending'
-                        ? 'badge-pending'
                         : 'badge-partial'
                     }`}
                   >
