@@ -63,18 +63,21 @@ export type Database = {
       }
       courses: {
         Row: {
+          certificate_name: string | null
           created_at: string
           id: string
           name: string
           short_name: string | null
         }
         Insert: {
+          certificate_name?: string | null
           created_at?: string
           id?: string
           name: string
           short_name?: string | null
         }
         Update: {
+          certificate_name?: string | null
           created_at?: string
           id?: string
           name?: string
