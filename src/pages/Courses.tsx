@@ -10,6 +10,7 @@ export default function Courses() {
   const [newCourse, setNewCourse] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingValue, setEditingValue] = useState('');
+  const [editingShortName, setEditingShortName] = useState('');
 
   const handleAddCourse = async () => {
     if (!newCourse.trim()) {
@@ -21,9 +22,10 @@ export default function Courses() {
     }
   };
 
-  const handleEditCourse = (id: string, name: string) => {
-    setEditingId(id);
-    setEditingValue(name);
+  const handleEditCourse = (course: { id: string; name: string; short_name: string | null }) => {
+    setEditingId(course.id);
+    setEditingValue(course.name);
+    setEditingShortName(course.short_name || '');
   };
 
   const handleSaveEdit = async () => {
@@ -31,10 +33,11 @@ export default function Courses() {
     if (!editingValue.trim()) {
       return;
     }
-    const success = await updateCourse(editingId, editingValue);
+    const success = await updateCourse(editingId, editingValue, editingShortName);
     if (success) {
       setEditingId(null);
       setEditingValue('');
+      setEditingShortName('');
     }
   };
 
@@ -45,6 +48,7 @@ export default function Courses() {
   const handleCancelEdit = () => {
     setEditingId(null);
     setEditingValue('');
+    setEditingShortName('');
   };
 
   if (loading) {
@@ -108,7 +112,7 @@ export default function Courses() {
             {coursesData.map((course, index) => (
               <div
                 key={course.id}
-                className="flex items-center gap-2 p-3 rounded-xl bg-muted/30 group hover:bg-muted/50 transition-colors"
+                className="flex items-center gap-3 p-3 rounded-xl bg-muted/30 group hover:bg-muted/50 transition-colors"
               >
                 {editingId === course.id ? (
                   <>
@@ -116,7 +120,19 @@ export default function Courses() {
                       value={editingValue}
                       onChange={(e) => setEditingValue(e.target.value)}
                       className="input-glass flex-1"
+                      placeholder="Course name"
                       autoFocus
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleSaveEdit();
+                        if (e.key === 'Escape') handleCancelEdit();
+                      }}
+                    />
+                    <Input
+                      value={editingShortName}
+                      onChange={(e) => setEditingShortName(e.target.value.toUpperCase())}
+                      className="input-glass w-20"
+                      placeholder="Short"
+                      maxLength={6}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') handleSaveEdit();
                         if (e.key === 'Escape') handleCancelEdit();
@@ -145,10 +161,13 @@ export default function Courses() {
                       {index + 1}
                     </span>
                     <span className="flex-1 text-foreground font-medium">{course.name}</span>
+                    <span className="px-2.5 py-1 rounded-lg bg-secondary text-secondary-foreground text-xs font-bold min-w-[50px] text-center">
+                      {course.short_name || '—'}
+                    </span>
                     <Button
                       size="icon"
                       variant="ghost"
-                      onClick={() => handleEditCourse(course.id, course.name)}
+                      onClick={() => handleEditCourse(course)}
                       className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
                     >
                       <Pencil className="w-4 h-4" />
