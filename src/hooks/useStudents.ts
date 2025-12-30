@@ -124,6 +124,9 @@ export function useStudents() {
 
   const updateStudent = async (id: string, studentData: Partial<Student>) => {
     try {
+      // Get the current student to check if certificate status is changing to Issued
+      const currentStudent = students.find(s => s.id === id);
+      
       const { error } = await supabase
         .from('students')
         .update({
@@ -143,6 +146,41 @@ export function useStudents() {
         .eq('id', id);
 
       if (error) throw error;
+      
+      // If certificate status changed to "Issued", create certificates
+      if (studentData.certificateStatus === 'Issued' && currentStudent?.certificateStatus !== 'Issued') {
+        const coursesToIssue = studentData.courses || (studentData.course ? [studentData.course] : []);
+        const studentName = studentData.fullName || currentStudent?.fullName || '';
+        
+        for (const course of coursesToIssue) {
+          // Check if certificate already exists for this student-course combination
+          const { data: existing } = await supabase
+            .from('certificates')
+            .select('id')
+            .eq('student_id', id)
+            .eq('course', course)
+            .maybeSingle();
+          
+          if (!existing) {
+            // Generate certificate ID: DAC-YYYY-COURSESHORT-XXXXX
+            const year = new Date().getFullYear();
+            const courseShort = course.replace(/[^A-Z]/gi, '').slice(0, 3).toUpperCase();
+            const randomNum = Math.floor(10000 + Math.random() * 90000);
+            const certificateId = `DAC-${year}-${courseShort}-${String(randomNum).padStart(5, '0')}`;
+            
+            // Create certificate
+            await supabase.from('certificates').insert({
+              certificate_id: certificateId,
+              student_id: id,
+              full_name: studentName,
+              course: course,
+              status: 'Active',
+              issue_date: new Date().toISOString().split('T')[0],
+            });
+          }
+        }
+      }
+      
       toast.success('Student updated successfully');
       return true;
     } catch (error) {
