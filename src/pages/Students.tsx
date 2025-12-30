@@ -39,9 +39,9 @@ export default function Students() {
       );
     }
 
-    // Course filter
+    // Course filter - check if any of the student's courses match
     if (selectedCourse !== 'all') {
-      filtered = filtered.filter((s) => s.course === selectedCourse);
+      filtered = filtered.filter((s) => s.courses.includes(selectedCourse) || s.course === selectedCourse);
     }
 
     // Date filter

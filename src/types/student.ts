@@ -6,7 +6,9 @@ export interface Student {
   email: string;
   whatsappNo: string;
   city: string;
-  course: string;
+  course: string; // Keep for backward compatibility, will use first course
+  courses: string[]; // Multiple courses
+  batchCode: string; // Batch code (e.g., "FS01, GD02")
   paymentMode: 'Cash' | 'UPI' | 'Bank Transfer' | 'Card' | 'Other';
   paymentStatus: 'Paid' | 'Pending' | 'Partial';
   amountPaid: number;

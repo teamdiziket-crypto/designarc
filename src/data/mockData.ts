@@ -42,6 +42,8 @@ const generateStudents = (count: number): Student[] => {
       whatsappNo: `+91 ${Math.floor(Math.random() * 9000000000 + 1000000000)}`,
       city: cities[Math.floor(Math.random() * cities.length)],
       course,
+      courses: [course],
+      batchCode: `${course.substring(0, 2).toUpperCase()}${String(i + 1).padStart(2, '0')}`,
       paymentMode: paymentModes[Math.floor(Math.random() * paymentModes.length)],
       paymentStatus,
       amountPaid,
