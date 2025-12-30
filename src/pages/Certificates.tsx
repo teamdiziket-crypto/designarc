@@ -3,6 +3,7 @@ import { Search, Filter, Award, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { CertificateCard } from '@/components/certificates/CertificateCard';
+import { CertificatePreviewDialog } from '@/components/certificates/CertificatePreviewDialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
@@ -35,6 +36,8 @@ export default function Certificates() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [certificateToDelete, setCertificateToDelete] = useState<Certificate | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [selectedCertificate, setSelectedCertificate] = useState<Certificate | null>(null);
 
   const filteredCertificates = useMemo(() => {
     let filtered = [...certificates];
@@ -69,9 +72,8 @@ export default function Certificates() {
   }, [certificates]);
 
   const handleView = (cert: Certificate) => {
-    // Copy certificate ID to clipboard and show toast
-    navigator.clipboard.writeText(cert.certificateId);
-    toast.success(`Certificate ID copied: ${cert.certificateId}`);
+    setSelectedCertificate(cert);
+    setPreviewOpen(true);
   };
 
   const handleDownload = (cert: Certificate) => {
@@ -270,6 +272,13 @@ export default function Certificates() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        {/* Certificate Preview Dialog */}
+        <CertificatePreviewDialog
+          certificate={selectedCertificate}
+          open={previewOpen}
+          onOpenChange={setPreviewOpen}
+        />
       </div>
     </MainLayout>
   );
