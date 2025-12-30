@@ -17,6 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { useCourses } from '@/contexts/CoursesContext';
 
 interface StudentTableProps {
   students: Student[];
@@ -57,6 +58,7 @@ const formatDate = (dateString: string) => {
 };
 
 export function StudentTable({ students, selectedIds, onSelectionChange, onEdit, onDelete }: StudentTableProps) {
+  const { getShortName } = useCourses();
   const allSelected = students.length > 0 && students.every((s) => selectedIds.has(s.id));
   const someSelected = students.some((s) => selectedIds.has(s.id)) && !allSelected;
 
@@ -135,15 +137,15 @@ export function StudentTable({ students, selectedIds, onSelectionChange, onEdit,
                   </span>
                 </div>
               </TableCell>
-              <TableCell>
-                <span className="flex items-center gap-1 text-sm text-muted-foreground">
-                  <Phone className="w-3 h-3" />
+              <TableCell className="whitespace-nowrap">
+                <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                  <Phone className="w-3 h-3 flex-shrink-0" />
                   {student.whatsappNo}
                 </span>
               </TableCell>
               <TableCell>
-                <span className="px-2.5 py-1 rounded-lg bg-secondary text-secondary-foreground text-xs font-medium">
-                  {student.course}
+                <span className="px-2.5 py-1 rounded-lg bg-secondary text-secondary-foreground text-xs font-bold whitespace-nowrap">
+                  {getShortName(student.course)}
                 </span>
               </TableCell>
               <TableCell className="text-muted-foreground">
@@ -160,7 +162,7 @@ export function StudentTable({ students, selectedIds, onSelectionChange, onEdit,
                   ? formatCurrency(student.pendingAmount)
                   : '—'}
               </TableCell>
-              <TableCell className="text-muted-foreground text-sm">
+              <TableCell className="text-muted-foreground text-sm whitespace-nowrap">
                 {formatDate(student.timestamp)}
               </TableCell>
               <TableCell>
