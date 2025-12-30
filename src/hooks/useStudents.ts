@@ -138,6 +138,7 @@ export function useStudents() {
           payment_status: studentData.paymentStatus,
           amount_paid: studentData.amountPaid,
           pending_amount: studentData.pendingAmount,
+          certificate_status: studentData.certificateStatus,
         })
         .eq('id', id);
 
@@ -147,6 +148,22 @@ export function useStudents() {
     } catch (error) {
       console.error('Error updating student:', error);
       toast.error('Failed to update student');
+      return false;
+    }
+  };
+
+  const bulkUpdateCertificateStatus = async (ids: string[], status: string) => {
+    try {
+      const { error } = await supabase
+        .from('students')
+        .update({ certificate_status: status })
+        .in('id', ids);
+      if (error) throw error;
+      toast.success(`${ids.length} students updated to ${status}`);
+      return true;
+    } catch (error) {
+      console.error('Error bulk updating certificate status:', error);
+      toast.error('Failed to update certificate status');
       return false;
     }
   };
@@ -184,6 +201,7 @@ export function useStudents() {
     updateStudent,
     deleteStudent,
     bulkDeleteStudents,
+    bulkUpdateCertificateStatus,
     refetch: fetchStudents,
   };
 }

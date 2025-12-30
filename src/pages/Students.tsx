@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Plus, Trash2, Loader2 } from 'lucide-react';
+import { Plus, Trash2, Loader2, Award } from 'lucide-react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { StudentFilters } from '@/components/students/StudentFilters';
 import { StudentTable } from '@/components/students/StudentTable';
@@ -13,7 +13,7 @@ import { Student } from '@/types/student';
 import { toast } from 'sonner';
 
 export default function Students() {
-  const { students, loading, addStudent, updateStudent, deleteStudent, bulkDeleteStudents } = useStudents();
+  const { students, loading, addStudent, updateStudent, deleteStudent, bulkDeleteStudents, bulkUpdateCertificateStatus } = useStudents();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCourse, setSelectedCourse] = useState('all');
   const [selectedBatchCode, setSelectedBatchCode] = useState('all');
@@ -149,6 +149,11 @@ export default function Students() {
     setBulkDeleteOpen(false);
   };
 
+  const handleBulkIssueCertificate = async () => {
+    await bulkUpdateCertificateStatus(Array.from(selectedIds), 'Issued');
+    setSelectedIds(new Set());
+  };
+
   if (loading) {
     return (
       <MainLayout>
@@ -172,13 +177,22 @@ export default function Students() {
           </div>
           <div className="flex items-center gap-3">
             {selectedIds.size > 0 && (
-              <Button
-                variant="destructive"
-                onClick={() => setBulkDeleteOpen(true)}
-              >
-                <Trash2 className="w-4 h-4 mr-2" />
-                Delete ({selectedIds.size})
-              </Button>
+              <>
+                <Button
+                  onClick={handleBulkIssueCertificate}
+                  className="bg-success hover:bg-success/90 text-success-foreground"
+                >
+                  <Award className="w-4 h-4 mr-2" />
+                  Issue Certificate ({selectedIds.size})
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={() => setBulkDeleteOpen(true)}
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Delete ({selectedIds.size})
+                </Button>
+              </>
             )}
             <Button
               onClick={() => {

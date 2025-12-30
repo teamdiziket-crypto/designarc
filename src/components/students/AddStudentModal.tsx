@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Student, PaymentMode, PaymentStatus } from '@/types/student';
+import { Student, PaymentMode, PaymentStatus, CertificateStatus } from '@/types/student';
 import { useCourses } from '@/contexts/CoursesContext';
 import { toast } from 'sonner';
 
@@ -30,6 +30,7 @@ interface AddStudentModalProps {
 
 const paymentModes: PaymentMode[] = ['UPI', 'Razorpay', 'Others'];
 const paymentStatuses: PaymentStatus[] = ['Paid', 'Pending', 'Partial'];
+const certificateStatuses: CertificateStatus[] = ['Pending', 'Issued', 'Revoked'];
 
 export function AddStudentModal({
   open,
@@ -49,6 +50,7 @@ export function AddStudentModal({
     paymentStatus: 'Pending' as PaymentStatus,
     amountPaid: 0,
     pendingAmount: 0,
+    certificateStatus: 'Pending' as CertificateStatus,
   });
 
   // Reset form when editStudent changes or modal opens
@@ -65,6 +67,7 @@ export function AddStudentModal({
         paymentStatus: editStudent?.paymentStatus || 'Pending',
         amountPaid: editStudent?.amountPaid || 0,
         pendingAmount: editStudent?.pendingAmount || 0,
+        certificateStatus: editStudent?.certificateStatus || 'Pending',
       });
     }
   }, [open, editStudent]);
@@ -113,7 +116,7 @@ export function AddStudentModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[560px] glass-card border-border/50">
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto glass-card border-border/50">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">
             {isEditing ? 'Edit Student' : 'Add New Student'}
@@ -178,7 +181,7 @@ export function AddStudentModal({
 
           <div className="space-y-2">
             <Label>Courses * (Select one or more)</Label>
-            <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto p-3 rounded-lg bg-muted/30 border border-border/50">
+            <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto p-3 rounded-lg bg-muted/30 border border-border/50">
               {courses.map((course) => (
                 <div key={course} className="flex items-center space-x-2">
                   <Checkbox
@@ -202,20 +205,39 @@ export function AddStudentModal({
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="batchCode">Batch Code</Label>
-            <Input
-              id="batchCode"
-              value={formData.batchCode}
-              onChange={(e) =>
-                setFormData({ ...formData, batchCode: e.target.value })
-              }
-              className="input-glass"
-              placeholder="e.g., FS01, GD02"
-            />
-            <p className="text-xs text-muted-foreground">
-              Auto-generated from course short names. You can edit manually.
-            </p>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="batchCode">Batch Code</Label>
+              <Input
+                id="batchCode"
+                value={formData.batchCode}
+                onChange={(e) =>
+                  setFormData({ ...formData, batchCode: e.target.value })
+                }
+                className="input-glass"
+                placeholder="e.g., FS01, GD02"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Certificate Status</Label>
+              <Select
+                value={formData.certificateStatus}
+                onValueChange={(value: CertificateStatus) =>
+                  setFormData({ ...formData, certificateStatus: value })
+                }
+              >
+                <SelectTrigger className="input-glass">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {certificateStatuses.map((status) => (
+                    <SelectItem key={status} value={status}>
+                      {status}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
