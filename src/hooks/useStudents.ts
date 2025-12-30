@@ -154,6 +154,43 @@ export function useStudents() {
 
   const bulkUpdateCertificateStatus = async (ids: string[], status: string) => {
     try {
+      // First get the students to create certificates for
+      if (status === 'Issued') {
+        const studentsToIssue = students.filter(s => ids.includes(s.id));
+        
+        // Generate certificates for each student and their courses
+        for (const student of studentsToIssue) {
+          for (const course of student.courses) {
+            // Generate certificate ID: DAC-YYYY-COURSESHORT-XXXXX
+            const year = new Date().getFullYear();
+            const courseShort = course.replace(/[^A-Z]/gi, '').slice(0, 3).toUpperCase();
+            const randomNum = Math.floor(10000 + Math.random() * 90000);
+            const certificateId = `DAC-${year}-${courseShort}-${String(randomNum).padStart(5, '0')}`;
+            
+            // Check if certificate already exists for this student-course combination
+            const { data: existing } = await supabase
+              .from('certificates')
+              .select('id')
+              .eq('student_id', student.id)
+              .eq('course', course)
+              .maybeSingle();
+            
+            if (!existing) {
+              // Create certificate
+              await supabase.from('certificates').insert({
+                certificate_id: certificateId,
+                student_id: student.id,
+                full_name: student.fullName,
+                course: course,
+                status: 'Active',
+                issue_date: new Date().toISOString().split('T')[0],
+              });
+            }
+          }
+        }
+      }
+      
+      // Update student certificate status
       const { error } = await supabase
         .from('students')
         .update({ certificate_status: status })

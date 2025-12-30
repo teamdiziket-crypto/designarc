@@ -94,6 +94,16 @@ export function useCertificates() {
         .eq('id', id);
 
       if (error) throw error;
+      
+      // Also update the student's certificate status
+      const cert = certificates.find(c => c.id === id);
+      if (cert?.studentId) {
+        await supabase
+          .from('students')
+          .update({ certificate_status: 'Revoked' })
+          .eq('id', cert.studentId);
+      }
+      
       toast.success('Certificate revoked successfully');
       return true;
     } catch (error) {
@@ -103,10 +113,56 @@ export function useCertificates() {
     }
   };
 
+  const createCertificate = async (studentId: string, fullName: string, course: string) => {
+    try {
+      // Generate certificate ID: DAC-YYYY-COURSESHORT-XXXXX
+      const year = new Date().getFullYear();
+      const courseShort = course.replace(/[^A-Z]/gi, '').slice(0, 3).toUpperCase();
+      const randomNum = Math.floor(10000 + Math.random() * 90000);
+      const certificateId = `DAC-${year}-${courseShort}-${String(randomNum).padStart(5, '0')}`;
+
+      const { error } = await supabase.from('certificates').insert({
+        certificate_id: certificateId,
+        student_id: studentId,
+        full_name: fullName,
+        course: course,
+        status: 'Active',
+        issue_date: new Date().toISOString().split('T')[0],
+      });
+
+      if (error) throw error;
+      toast.success('Certificate created successfully');
+      return true;
+    } catch (error) {
+      console.error('Error creating certificate:', error);
+      toast.error('Failed to create certificate');
+      return false;
+    }
+  };
+
+  const deleteCertificate = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('certificates')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      toast.success('Certificate deleted successfully');
+      return true;
+    } catch (error) {
+      console.error('Error deleting certificate:', error);
+      toast.error('Failed to delete certificate');
+      return false;
+    }
+  };
+
   return {
     certificates,
     loading,
     revokeCertificate,
+    createCertificate,
+    deleteCertificate,
     refetch: fetchCertificates,
   };
 }
