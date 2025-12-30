@@ -148,9 +148,8 @@ export default function Auth() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4">
       <Card className="w-full max-w-md glass-card border-border/50">
         <CardHeader className="text-center space-y-4">
-          <div className="mx-auto flex flex-col items-center gap-3">
-            <img src={logoIcon} alt="Design Arc" className="w-16 h-16 rounded-2xl shadow-lg" />
-            <img src={logoFull} alt="Design Arc Academy" className="h-10 object-contain" />
+          <div className="mx-auto">
+            <img src={logoFull} alt="Design Arc Academy" className="h-14 object-contain" />
           </div>
           <div>
             <CardDescription className="text-muted-foreground mt-2">
