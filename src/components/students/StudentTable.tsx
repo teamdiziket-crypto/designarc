@@ -108,6 +108,7 @@ export function StudentTable({ students, selectedIds, onSelectionChange, onEdit,
             <TableHead>Batch Code</TableHead>
             <TableHead>City</TableHead>
             <TableHead>Payment</TableHead>
+            <TableHead>Mode</TableHead>
             <TableHead className="text-right">Paid</TableHead>
             <TableHead className="text-right">Pending</TableHead>
             <TableHead>Date</TableHead>
@@ -163,6 +164,11 @@ export function StudentTable({ students, selectedIds, onSelectionChange, onEdit,
               </TableCell>
               <TableCell>
                 <PaymentStatusBadge status={student.paymentStatus} />
+              </TableCell>
+              <TableCell>
+                <span className="text-sm text-muted-foreground">
+                  {student.paymentMode}
+                </span>
               </TableCell>
               <TableCell className="text-right font-medium text-success">
                 {formatCurrency(student.amountPaid)}
