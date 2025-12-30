@@ -6,13 +6,13 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CoursesProvider } from "./contexts/CoursesContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import Home from "./pages/Home";
 import Register from "./pages/Register";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Students from "./pages/Students";
 import Courses from "./pages/Courses";
 import Certificates from "./pages/Certificates";
-import Verify from "./pages/Verify";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
@@ -28,7 +28,8 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               {/* Public Routes */}
-              <Route path="/" element={<Register />} />
+              <Route path="/" element={<Home />} />
+              <Route path="/register" element={<Register />} />
               <Route path="/auth" element={<Auth />} />
               
               {/* Protected Admin Routes */}
@@ -50,11 +51,6 @@ const App = () => (
               <Route path="/certificates" element={
                 <ProtectedRoute>
                   <Certificates />
-                </ProtectedRoute>
-              } />
-              <Route path="/verify" element={
-                <ProtectedRoute>
-                  <Verify />
                 </ProtectedRoute>
               } />
               <Route path="/settings" element={

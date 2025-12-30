@@ -16,6 +16,8 @@ export default function Students() {
   const { students, loading, addStudent, updateStudent, deleteStudent, bulkDeleteStudents } = useStudents();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCourse, setSelectedCourse] = useState('all');
+  const [selectedBatchCode, setSelectedBatchCode] = useState('all');
+  const [selectedCertificateStatus, setSelectedCertificateStatus] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
   const [customDateRange, setCustomDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({
     from: undefined,
@@ -29,6 +31,15 @@ export default function Students() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
   const [exportModalOpen, setExportModalOpen] = useState(false);
+
+  // Get unique batch codes for filter
+  const batchCodes = useMemo(() => {
+    const codes = new Set<string>();
+    students.forEach(s => {
+      if (s.batchCode) codes.add(s.batchCode);
+    });
+    return Array.from(codes).sort();
+  }, [students]);
 
   const filteredStudents = useMemo(() => {
     let filtered = [...students];
@@ -48,6 +59,16 @@ export default function Students() {
     // Course filter - check if any of the student's courses match
     if (selectedCourse !== 'all') {
       filtered = filtered.filter((s) => s.courses.includes(selectedCourse) || s.course === selectedCourse);
+    }
+
+    // Batch code filter
+    if (selectedBatchCode !== 'all') {
+      filtered = filtered.filter((s) => s.batchCode === selectedBatchCode);
+    }
+
+    // Certificate status filter
+    if (selectedCertificateStatus !== 'all') {
+      filtered = filtered.filter((s) => s.certificateStatus === selectedCertificateStatus);
     }
 
     // Date filter
@@ -78,7 +99,7 @@ export default function Students() {
     );
 
     return filtered;
-  }, [students, searchQuery, selectedCourse, dateFilter, customDateRange]);
+  }, [students, searchQuery, selectedCourse, selectedBatchCode, selectedCertificateStatus, dateFilter, customDateRange]);
 
   const paginatedStudents = useMemo(() => {
     const start = (currentPage - 1) * recordsPerPage;
@@ -90,6 +111,8 @@ export default function Students() {
   const handleResetFilters = () => {
     setSearchQuery('');
     setSelectedCourse('all');
+    setSelectedBatchCode('all');
+    setSelectedCertificateStatus('all');
     setDateFilter('all');
     setCustomDateRange({ from: undefined, to: undefined });
     setCurrentPage(1);
@@ -182,6 +205,16 @@ export default function Students() {
             setSelectedCourse(value);
             setCurrentPage(1);
           }}
+          selectedBatchCode={selectedBatchCode}
+          onBatchCodeChange={(value) => {
+            setSelectedBatchCode(value);
+            setCurrentPage(1);
+          }}
+          selectedCertificateStatus={selectedCertificateStatus}
+          onCertificateStatusChange={(value) => {
+            setSelectedCertificateStatus(value);
+            setCurrentPage(1);
+          }}
           dateFilter={dateFilter}
           onDateFilterChange={(value) => {
             setDateFilter(value);
@@ -199,6 +232,7 @@ export default function Students() {
           }}
           onReset={handleResetFilters}
           onExport={handleExport}
+          batchCodes={batchCodes}
         />
 
         {/* Results Info */}

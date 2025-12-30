@@ -106,6 +106,7 @@ export function StudentTable({ students, selectedIds, onSelectionChange, onEdit,
             <TableHead>WhatsApp</TableHead>
             <TableHead>Courses</TableHead>
             <TableHead>Batch Code</TableHead>
+            <TableHead>Cert. Status</TableHead>
             <TableHead>City</TableHead>
             <TableHead>Payment</TableHead>
             <TableHead>Mode</TableHead>
@@ -157,6 +158,17 @@ export function StudentTable({ students, selectedIds, onSelectionChange, onEdit,
               <TableCell>
                 <span className="text-sm text-muted-foreground whitespace-nowrap">
                   {student.batchCode || '—'}
+                </span>
+              </TableCell>
+              <TableCell>
+                <span className={`px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${
+                  student.certificateStatus === 'Issued' 
+                    ? 'bg-success/10 text-success' 
+                    : student.certificateStatus === 'Revoked'
+                    ? 'bg-destructive/10 text-destructive'
+                    : 'bg-muted text-muted-foreground'
+                }`}>
+                  {student.certificateStatus}
                 </span>
               </TableCell>
               <TableCell className="text-muted-foreground">

@@ -86,6 +86,7 @@ export type Database = {
         Row: {
           amount_paid: number
           batch_code: string | null
+          certificate_status: string
           city: string
           course: string
           courses: string[] | null
@@ -103,6 +104,7 @@ export type Database = {
         Insert: {
           amount_paid?: number
           batch_code?: string | null
+          certificate_status?: string
           city: string
           course: string
           courses?: string[] | null
@@ -120,6 +122,7 @@ export type Database = {
         Update: {
           amount_paid?: number
           batch_code?: string | null
+          certificate_status?: string
           city?: string
           course?: string
           courses?: string[] | null
