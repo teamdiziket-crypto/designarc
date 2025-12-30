@@ -2,9 +2,12 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { CoursesProvider } from "./contexts/CoursesContext";
-import Index from "./pages/Index";
+import { AuthProvider } from "./contexts/AuthContext";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import Auth from "./pages/Auth";
+import Dashboard from "./pages/Dashboard";
 import Students from "./pages/Students";
 import Courses from "./pages/Courses";
 import Certificates from "./pages/Certificates";
@@ -16,24 +19,52 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <CoursesProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/students" element={<Students />} />
-            <Route path="/courses" element={<Courses />} />
-            <Route path="/certificates" element={<Certificates />} />
-            <Route path="/verify" element={<Verify />} />
-            <Route path="/settings" element={<Settings />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </CoursesProvider>
+    <AuthProvider>
+      <CoursesProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/dashboard" element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/students" element={
+                <ProtectedRoute>
+                  <Students />
+                </ProtectedRoute>
+              } />
+              <Route path="/courses" element={
+                <ProtectedRoute>
+                  <Courses />
+                </ProtectedRoute>
+              } />
+              <Route path="/certificates" element={
+                <ProtectedRoute>
+                  <Certificates />
+                </ProtectedRoute>
+              } />
+              <Route path="/verify" element={
+                <ProtectedRoute>
+                  <Verify />
+                </ProtectedRoute>
+              } />
+              <Route path="/settings" element={
+                <ProtectedRoute>
+                  <Settings />
+                </ProtectedRoute>
+              } />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </CoursesProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 

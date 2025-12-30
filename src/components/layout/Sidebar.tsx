@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   Users,
@@ -8,9 +8,11 @@ import {
   LogOut,
   GraduationCap,
 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
 const navigation = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Students', href: '/students', icon: Users },
   { name: 'Courses', href: '/courses', icon: GraduationCap },
   { name: 'Certificates', href: '/certificates', icon: Award },
@@ -20,6 +22,18 @@ const navigation = [
 
 export function Sidebar() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+
+  const handleLogout = async () => {
+    await signOut();
+    toast.success('Logged out successfully');
+    navigate('/auth');
+  };
+
+  const getInitials = (email: string) => {
+    return email.substring(0, 2).toUpperCase();
+  };
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 bg-sidebar flex flex-col z-50">
@@ -59,17 +73,23 @@ export function Sidebar() {
       <div className="p-4 border-t border-sidebar-border">
         <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-sidebar-accent">
           <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center">
-            <span className="text-sm font-semibold text-primary">AD</span>
+            <span className="text-sm font-semibold text-primary">
+              {user?.email ? getInitials(user.email) : 'AD'}
+            </span>
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-sidebar-foreground truncate">
-              Admin User
+              Admin
             </p>
             <p className="text-xs text-sidebar-foreground/60 truncate">
-              admin@designarc.com
+              {user?.email || 'admin@designarc.com'}
             </p>
           </div>
-          <button className="p-2 rounded-lg hover:bg-sidebar-border transition-colors text-sidebar-foreground/60 hover:text-sidebar-foreground">
+          <button 
+            onClick={handleLogout}
+            className="p-2 rounded-lg hover:bg-sidebar-border transition-colors text-sidebar-foreground/60 hover:text-sidebar-foreground"
+            title="Logout"
+          >
             <LogOut className="w-4 h-4" />
           </button>
         </div>
