@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Search, ShieldCheck, ShieldX, Award, Calendar, GraduationCap, UserPlus, Download, FileImage, FileText, Hash } from 'lucide-react';
+import { Search, ShieldCheck, ShieldX, Award, Calendar, GraduationCap, Download, FileText, Hash } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -113,21 +112,8 @@ export default function Home() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border/50 bg-card/50 backdrop-blur-sm">
-        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-center">
           <img src={logoFull} alt="Design Arc Academy" className="h-10" />
-          <div className="flex items-center gap-3">
-            <Link to="/register">
-              <Button variant="outline" className="btn-glass">
-                <UserPlus className="w-4 h-4 mr-2" />
-                Register
-              </Button>
-            </Link>
-            <Link to="/auth">
-              <Button variant="ghost" size="sm">
-                Admin Login
-              </Button>
-            </Link>
-          </div>
         </div>
       </header>
 
