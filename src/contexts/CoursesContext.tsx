@@ -6,7 +6,6 @@ interface Course {
   id: string;
   name: string;
   short_name: string | null;
-  certificate_name: string | null;
 }
 
 interface CoursesContextType {
@@ -14,9 +13,8 @@ interface CoursesContextType {
   coursesData: Course[];
   loading: boolean;
   addCourse: (course: string) => Promise<boolean>;
-  updateCourse: (id: string, newName: string, shortName?: string, certificateName?: string) => Promise<boolean>;
+  updateCourse: (id: string, newName: string, shortName?: string) => Promise<boolean>;
   getShortName: (courseName: string) => string;
-  getCertificateName: (courseName: string) => string;
   deleteCourse: (id: string) => Promise<void>;
 }
 
@@ -93,7 +91,7 @@ export function CoursesProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const updateCourse = async (id: string, newName: string, shortName?: string, certificateName?: string): Promise<boolean> => {
+  const updateCourse = async (id: string, newName: string, shortName?: string): Promise<boolean> => {
     const trimmed = newName.trim();
     if (!trimmed) {
       toast.error('Course name cannot be empty');
@@ -101,12 +99,9 @@ export function CoursesProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      const updateData: { name: string; short_name?: string | null; certificate_name?: string | null } = { name: trimmed };
+      const updateData: { name: string; short_name?: string | null } = { name: trimmed };
       if (shortName !== undefined) {
         updateData.short_name = shortName.trim().toUpperCase() || null;
-      }
-      if (certificateName !== undefined) {
-        updateData.certificate_name = certificateName.trim() || null;
       }
       
       const { error } = await supabase
@@ -129,11 +124,6 @@ export function CoursesProvider({ children }: { children: ReactNode }) {
     return course?.short_name || courseName.substring(0, 3).toUpperCase();
   };
 
-  const getCertificateName = (courseName: string): string => {
-    const course = coursesData.find((c) => c.name === courseName);
-    return course?.certificate_name || courseName;
-  };
-
   const deleteCourse = async (id: string): Promise<void> => {
     try {
       const { error } = await supabase.from('courses').delete().eq('id', id);
@@ -146,7 +136,7 @@ export function CoursesProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <CoursesContext.Provider value={{ courses, coursesData, loading, addCourse, updateCourse, deleteCourse, getShortName, getCertificateName }}>
+    <CoursesContext.Provider value={{ courses, coursesData, loading, addCourse, updateCourse, deleteCourse, getShortName }}>
       {children}
     </CoursesContext.Provider>
   );
