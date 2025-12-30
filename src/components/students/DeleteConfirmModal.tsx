@@ -12,7 +12,8 @@ import { Student } from '@/types/student';
 interface DeleteConfirmModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  student: Student | null;
+  student?: Student | null;
+  bulkCount?: number;
   onConfirm: () => void;
 }
 
@@ -20,9 +21,12 @@ export function DeleteConfirmModal({
   open,
   onOpenChange,
   student,
+  bulkCount,
   onConfirm,
 }: DeleteConfirmModalProps) {
-  if (!student) return null;
+  const isBulk = bulkCount && bulkCount > 0;
+
+  if (!student && !isBulk) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -31,13 +35,27 @@ export function DeleteConfirmModal({
           <div className="mx-auto w-14 h-14 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
             <AlertTriangle className="w-7 h-7 text-destructive" />
           </div>
-          <DialogTitle className="text-xl font-bold">Delete Student</DialogTitle>
+          <DialogTitle className="text-xl font-bold">
+            {isBulk ? `Delete ${bulkCount} Students` : 'Delete Student'}
+          </DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            Are you sure you want to delete{' '}
-            <span className="font-semibold text-foreground">
-              {student.fullName}
-            </span>
-            ? This action cannot be undone.
+            {isBulk ? (
+              <>
+                Are you sure you want to delete{' '}
+                <span className="font-semibold text-foreground">
+                  {bulkCount} students
+                </span>
+                ? This action cannot be undone.
+              </>
+            ) : (
+              <>
+                Are you sure you want to delete{' '}
+                <span className="font-semibold text-foreground">
+                  {student?.fullName}
+                </span>
+                ? This action cannot be undone.
+              </>
+            )}
           </DialogDescription>
         </DialogHeader>
 
@@ -57,7 +75,7 @@ export function DeleteConfirmModal({
             }}
             className="min-w-[100px]"
           >
-            Delete
+            Delete{isBulk ? ` (${bulkCount})` : ''}
           </Button>
         </div>
       </DialogContent>

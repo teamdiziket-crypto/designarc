@@ -1,7 +1,7 @@
-import { useState } from 'react';
 import { Edit2, Trash2, MoreHorizontal, Mail, Phone } from 'lucide-react';
 import { Student } from '@/types/student';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,6 +20,8 @@ import {
 
 interface StudentTableProps {
   students: Student[];
+  selectedIds: Set<string>;
+  onSelectionChange: (ids: Set<string>) => void;
   onEdit: (student: Student) => void;
   onDelete: (student: Student) => void;
 }
@@ -54,12 +56,49 @@ const formatDate = (dateString: string) => {
   });
 };
 
-export function StudentTable({ students, onEdit, onDelete }: StudentTableProps) {
+export function StudentTable({ students, selectedIds, onSelectionChange, onEdit, onDelete }: StudentTableProps) {
+  const allSelected = students.length > 0 && students.every((s) => selectedIds.has(s.id));
+  const someSelected = students.some((s) => selectedIds.has(s.id)) && !allSelected;
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      const newSet = new Set(selectedIds);
+      students.forEach((s) => newSet.add(s.id));
+      onSelectionChange(newSet);
+    } else {
+      const newSet = new Set(selectedIds);
+      students.forEach((s) => newSet.delete(s.id));
+      onSelectionChange(newSet);
+    }
+  };
+
+  const handleSelectOne = (studentId: string, checked: boolean) => {
+    const newSet = new Set(selectedIds);
+    if (checked) {
+      newSet.add(studentId);
+    } else {
+      newSet.delete(studentId);
+    }
+    onSelectionChange(newSet);
+  };
+
   return (
     <div className="table-glass">
       <Table>
         <TableHeader>
           <TableRow className="hover:bg-transparent">
+            <TableHead className="w-12">
+              <Checkbox
+                checked={allSelected}
+                ref={(el) => {
+                  if (el) {
+                    (el as HTMLButtonElement & { indeterminate?: boolean }).indeterminate = someSelected;
+                  }
+                }}
+                onCheckedChange={handleSelectAll}
+                aria-label="Select all"
+              />
+            </TableHead>
             <TableHead className="w-12">#</TableHead>
             <TableHead>Student</TableHead>
             <TableHead>Course</TableHead>
@@ -73,7 +112,14 @@ export function StudentTable({ students, onEdit, onDelete }: StudentTableProps) 
         </TableHeader>
         <TableBody>
           {students.map((student, index) => (
-            <TableRow key={student.id} className="group">
+            <TableRow key={student.id} className={`group ${selectedIds.has(student.id) ? 'bg-primary/5' : ''}`}>
+              <TableCell>
+                <Checkbox
+                  checked={selectedIds.has(student.id)}
+                  onCheckedChange={(checked) => handleSelectOne(student.id, !!checked)}
+                  aria-label={`Select ${student.fullName}`}
+                />
+              </TableCell>
               <TableCell className="font-medium text-muted-foreground">
                 {index + 1}
               </TableCell>
