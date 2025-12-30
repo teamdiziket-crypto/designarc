@@ -124,7 +124,13 @@ export default function Auth() {
       }
     } catch (error: any) {
       console.error('Setup error:', error);
-      toast.error(error.message || 'Failed to create admin account');
+      // If admin already exists, switch to login mode
+      if (error.message?.includes('Admin already exists')) {
+        toast.info('An admin account already exists. Please sign in.');
+        setIsSetupMode(false);
+      } else {
+        toast.error(error.message || 'Failed to create admin account');
+      }
     } finally {
       setIsLoading(false);
     }
