@@ -30,13 +30,12 @@ interface StudentTableProps {
 const PaymentStatusBadge = ({ status }: { status: Student['paymentStatus'] }) => {
   const styles = {
     Paid: 'badge-paid',
-    Pending: 'badge-pending',
     Partial: 'badge-partial',
-  };
+  } as const;
 
   return (
     <span className={`px-3 py-1 rounded-full text-xs font-medium ${styles[status]}`}>
-      {status}
+      {status === 'Paid' ? 'Full Paid' : 'Partial Paid'}
     </span>
   );
 };

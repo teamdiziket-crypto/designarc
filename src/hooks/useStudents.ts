@@ -22,6 +22,18 @@ interface DbStudent {
   updated_at: string;
 }
 
+const normalizePaymentMode = (mode: string): Student['paymentMode'] => {
+  if (mode === 'UPI') return 'UPI/Gpay/Phonepe/Paytm';
+  if (mode === 'Razorpay') return 'Website (Razorpay)';
+  return mode as Student['paymentMode'];
+};
+
+const normalizePaymentStatus = (status: string): Student['paymentStatus'] => {
+  // Legacy: Pending is now treated as Partial (with amounts deciding what is due)
+  if (status === 'Pending') return 'Partial';
+  return status as Student['paymentStatus'];
+};
+
 const mapDbToStudent = (db: DbStudent): Student => ({
   id: db.id,
   rowId: db.row_id,
@@ -33,8 +45,8 @@ const mapDbToStudent = (db: DbStudent): Student => ({
   course: db.courses?.[0] || db.course, // Use first course from array or fallback to old course
   courses: db.courses || (db.course ? [db.course] : []),
   batchCode: db.batch_code || '',
-  paymentMode: db.payment_mode as Student['paymentMode'],
-  paymentStatus: db.payment_status as Student['paymentStatus'],
+  paymentMode: normalizePaymentMode(db.payment_mode),
+  paymentStatus: normalizePaymentStatus(db.payment_status),
   amountPaid: Number(db.amount_paid),
   pendingAmount: Number(db.pending_amount),
   certificateStatus: (db.certificate_status || 'Pending') as Student['certificateStatus'],
