@@ -149,7 +149,7 @@ export default function Auth() {
       <Card className="w-full max-w-md glass-card border-border/50">
         <CardHeader className="text-center space-y-4">
           <div className="mx-auto">
-            <img src={logoFull} alt="Design Arc Academy" className="h-14 object-contain dark:invert" />
+            <img src={logoFull} alt="Design Arc Academy" className="h-14 object-contain" />
           </div>
           <div>
             <CardDescription className="text-muted-foreground mt-2">
