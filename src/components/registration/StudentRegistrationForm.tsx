@@ -18,7 +18,7 @@ const registrationSchema = z.object({
   email: z.string().email('Please enter a valid email'),
   course: z.string().min(1, 'Please select a course'),
   city: z.string().min(2, 'City must be at least 2 characters').max(50),
-  payment_mode: z.enum(['UPI', 'Razorpay']),
+  payment_mode: z.enum(['UPI', 'Razorpay', 'Others']),
   payment_status: z.enum(['Paid', 'Partial', 'Pending']),
   amount_paid: z.number().min(0, 'Amount cannot be negative'),
   pending_amount: z.number().min(0, 'Amount cannot be negative'),
@@ -269,7 +269,7 @@ export function StudentRegistrationForm() {
               <Label>Payment Mode *</Label>
               <Select
                 defaultValue="UPI"
-                onValueChange={(value: 'UPI' | 'Razorpay') => setValue('payment_mode', value)}
+                onValueChange={(value: 'UPI' | 'Razorpay' | 'Others') => setValue('payment_mode', value)}
                 disabled={isLoading}
               >
                 <SelectTrigger className="input-glass">
@@ -278,6 +278,7 @@ export function StudentRegistrationForm() {
                 <SelectContent>
                   <SelectItem value="UPI">UPI</SelectItem>
                   <SelectItem value="Razorpay">Razorpay</SelectItem>
+                  <SelectItem value="Others">Others</SelectItem>
                 </SelectContent>
               </Select>
             </div>
