@@ -41,7 +41,9 @@ export function Sidebar() {
     <aside className="fixed left-0 top-0 h-screen w-64 bg-sidebar flex flex-col z-50">
       {/* Logo */}
       <div className="p-6 border-b border-sidebar-border">
-        <img src={logoFull} alt="Design Arc Academy" className="h-10 object-contain brightness-0 invert" />
+        <div className="bg-white/95 rounded-xl p-3 shadow-sm">
+          <img src={logoFull} alt="Design Arc Academy" className="h-8 object-contain" />
+        </div>
       </div>
 
       {/* Navigation */}
