@@ -101,6 +101,7 @@ export function StudentTable({ students, selectedIds, onSelectionChange, onEdit,
             </TableHead>
             <TableHead className="w-12">#</TableHead>
             <TableHead>Student</TableHead>
+            <TableHead>WhatsApp</TableHead>
             <TableHead>Course</TableHead>
             <TableHead>City</TableHead>
             <TableHead>Payment</TableHead>
@@ -128,13 +129,17 @@ export function StudentTable({ students, selectedIds, onSelectionChange, onEdit,
                   <span className="font-medium text-foreground">
                     {student.fullName}
                   </span>
-                  <div className="flex items-center gap-3 mt-1">
-                    <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Mail className="w-3 h-3" />
-                      {student.email}
-                    </span>
-                  </div>
+                  <span className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+                    <Mail className="w-3 h-3" />
+                    {student.email}
+                  </span>
                 </div>
+              </TableCell>
+              <TableCell>
+                <span className="flex items-center gap-1 text-sm text-muted-foreground">
+                  <Phone className="w-3 h-3" />
+                  {student.whatsappNo}
+                </span>
               </TableCell>
               <TableCell>
                 <span className="px-2.5 py-1 rounded-lg bg-secondary text-secondary-foreground text-xs font-medium">
