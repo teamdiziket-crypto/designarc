@@ -20,8 +20,7 @@ import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 import { AdminManagement } from '@/components/admin/AdminManagement';
 import { useCertificateSettings } from '@/hooks/useCertificateSettings';
-import { CertificateStyleEditor } from '@/components/settings/CertificateStyleEditor';
-import { CertificateLivePreview } from '@/components/settings/CertificateLivePreview';
+import { CertificateVisualEditor } from '@/components/settings/CertificateVisualEditor';
 
 export default function Settings() {
   const { settings: certSettings, updateSettings: updateCertSettings, defaultSettings } = useCertificateSettings();
@@ -104,23 +103,14 @@ Design Arc Academy Team`,
           </div>
         </div>
 
-        {/* Certificate Text Customization with Live Preview */}
+        {/* Certificate Visual Editor */}
         <div className="glass-card rounded-2xl p-6">
-          <h2 className="text-lg font-semibold text-foreground mb-6 flex items-center gap-2">
+          <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
             <Palette className="w-5 h-5 text-primary" />
             Certificate Text Customization
           </h2>
-          <p className="text-sm text-muted-foreground mb-4">
-            Customize text position and styling. Changes are saved automatically.
-          </p>
           
-          {/* Live Preview - Full Width */}
-          <div className="mb-6">
-            <CertificateLivePreview settings={certSettings} />
-          </div>
-          
-          {/* Style Controls Below */}
-          <CertificateStyleEditor
+          <CertificateVisualEditor
             settings={certSettings}
             defaultSettings={defaultSettings}
             onChange={updateCertSettings}
