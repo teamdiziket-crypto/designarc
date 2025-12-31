@@ -16,11 +16,11 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
   templateUrl,
   showCertificateId = false,
 }) => {
-  // Format issue date as "22nd December , 2025"
+  // Format issue date as "25th JUNE, 2025"
   const formatDateWithSuffix = (dateStr: string) => {
     const date = new Date(dateStr);
     const day = date.getDate();
-    const month = date.toLocaleDateString('en-US', { month: 'long' });
+    const month = date.toLocaleDateString('en-US', { month: 'long' }).toUpperCase();
     const year = date.getFullYear();
     
     // Add ordinal suffix
@@ -29,7 +29,16 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
                  : (day === 3 || day === 23) ? 'rd' 
                  : 'th';
     
-    return `${day}${suffix} ${month} , ${year}`;
+    return `${day}${suffix} ${month}, ${year}`;
+  };
+
+  // Capitalize name (first letter of each word uppercase)
+  const capitalizeName = (name: string) => {
+    return name
+      .toLowerCase()
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
   };
 
   const formattedDate = formatDateWithSuffix(issueDate);
@@ -70,7 +79,7 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
 
       {/* Dynamic Text Overlays - Positioned based on template design */}
       
-      {/* Student Name - Centered between "This is to certify that" and "has successfully completed" */}
+      {/* Student Name - Capitalize, 50px, Montserrat Regular, #F89A28 */}
       <div 
         className="absolute w-full text-center"
         style={{ top: '41.5%', left: '0' }}
@@ -82,10 +91,9 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
             fontSize: '50px',
             color: '#F89A28',
             letterSpacing: '3px',
-            textTransform: 'uppercase',
           }}
         >
-          {fullName || 'STUDENT NAME'}
+          {capitalizeName(fullName) || 'Student Name'}
         </p>
       </div>
 
