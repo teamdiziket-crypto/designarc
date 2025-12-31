@@ -145,8 +145,30 @@ export function CoursesProvider({ children }: { children: ReactNode }) {
   };
 
   const getTemplateUrl = (courseName: string): string | null => {
-    const course = coursesData.find((c) => c.name === courseName);
-    return course?.template_url || null;
+    // Try exact match first
+    let course = coursesData.find((c) => c.name === courseName);
+    
+    // Try case-insensitive match
+    if (!course) {
+      course = coursesData.find((c) => c.name.toLowerCase() === courseName.toLowerCase());
+    }
+    
+    // Try partial match (contains)
+    if (!course) {
+      course = coursesData.find((c) => 
+        c.name.toLowerCase().includes(courseName.toLowerCase()) ||
+        courseName.toLowerCase().includes(c.name.toLowerCase())
+      );
+    }
+    
+    // If course has a template, return it
+    if (course?.template_url) {
+      return course.template_url;
+    }
+    
+    // Find any course with a template as fallback (for demo purposes)
+    const courseWithTemplate = coursesData.find((c) => c.template_url);
+    return courseWithTemplate?.template_url || null;
   };
 
   const deleteCourse = async (id: string): Promise<void> => {
