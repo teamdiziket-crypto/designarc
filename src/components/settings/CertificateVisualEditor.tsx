@@ -318,12 +318,9 @@ export function CertificateVisualEditor({ settings, defaultSettings, onChange }:
             ? 'ring-2 ring-primary bg-primary/10' 
             : 'hover:ring-2 hover:ring-primary/50 hover:bg-primary/5'
         }`}
+        title="Drag to move • Right-click to edit"
       >
         <p style={textStyle}>{text}</p>
-        <div className="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-foreground text-background text-xs px-2 py-0.5 rounded whitespace-nowrap flex items-center gap-1">
-          <Move className="w-3 h-3" />
-          Drag to move • Right-click to edit
-        </div>
       </div>
     );
   };
@@ -369,8 +366,11 @@ export function CertificateVisualEditor({ settings, defaultSettings, onChange }:
       {/* Visual Editor Canvas */}
       <div 
         ref={containerRef}
-        className="relative w-full overflow-hidden rounded-lg cursor-crosshair"
-        style={{ paddingBottom: `${ASPECT_RATIO * 100}%` }}
+        className="relative w-full rounded-lg"
+        style={{ 
+          paddingBottom: `${ASPECT_RATIO * 100}%`,
+          overflow: 'hidden',
+        }}
         onClick={handleBackgroundClick}
       >
         <div 
