@@ -4,6 +4,7 @@ import { Download, X } from 'lucide-react';
 import { Certificate } from '@/types/student';
 import CertificateTemplate from './CertificateTemplate';
 import { useCourses } from '@/contexts/CoursesContext';
+import { useCertificateSettings } from '@/hooks/useCertificateSettings';
 
 interface CertificatePreviewDialogProps {
   certificate: Certificate | null;
@@ -17,6 +18,7 @@ export function CertificatePreviewDialog({
   onOpenChange,
 }: CertificatePreviewDialogProps) {
   const { getTemplateUrl } = useCourses();
+  const { settings } = useCertificateSettings();
   
   if (!certificate) return null;
 
@@ -58,6 +60,7 @@ export function CertificatePreviewDialog({
               issueDate={certificate.issueDate}
               certificateId={certificate.certificateId}
               templateUrl={templateUrl}
+              showCertificateId={settings.show_certificate_id}
             />
           </div>
         </div>

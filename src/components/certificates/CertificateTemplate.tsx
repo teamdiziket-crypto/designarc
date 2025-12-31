@@ -6,6 +6,7 @@ interface CertificateTemplateProps {
   issueDate: string;
   certificateId: string;
   templateUrl?: string | null;
+  showCertificateId?: boolean;
 }
 
 const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
@@ -13,6 +14,7 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
   issueDate,
   certificateId,
   templateUrl,
+  showCertificateId = false,
 }) => {
   // Format issue date as "25th DECEMBER, 2025"
   const formatDateWithSuffix = (dateStr: string) => {
@@ -68,18 +70,18 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
 
       {/* Dynamic Text Overlays - Positioned based on template design */}
       
-      {/* Student Name - Centered between the two text lines, Uppercase, 100px, Montserrat Regular, #F89A28 */}
+      {/* Student Name - Centered, Uppercase, 50px, Montserrat Regular, #F89A28 */}
       <div 
         className="absolute w-full text-center"
-        style={{ top: '46%', left: '0' }}
+        style={{ top: '44%', left: '0' }}
       >
         <p 
           style={{ 
             fontFamily: 'Montserrat, sans-serif',
             fontWeight: 400,
-            fontSize: '100px',
+            fontSize: '50px',
             color: '#F89A28',
-            letterSpacing: '4px',
+            letterSpacing: '2px',
             textTransform: 'uppercase',
           }}
         >
@@ -87,16 +89,16 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
         </p>
       </div>
 
-      {/* Issue Date - positioned at bottom left, 46px, Montserrat Medium, Black */}
+      {/* Issue Date - positioned at bottom left, 23px, Montserrat Medium, Black */}
       <div 
         className="absolute"
-        style={{ bottom: '11.5%', left: '10%' }}
+        style={{ bottom: '17%', left: '10%' }}
       >
         <p 
           style={{ 
             fontFamily: 'Montserrat, sans-serif',
             fontWeight: 500,
-            fontSize: '46px',
+            fontSize: '23px',
             color: '#000000',
           }}
         >
@@ -104,22 +106,24 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
         </p>
       </div>
 
-      {/* Certificate ID - just below date, 32px, Montserrat Medium */}
-      <div 
-        className="absolute"
-        style={{ bottom: '8.5%', left: '10%' }}
-      >
-        <p 
-          style={{ 
-            fontFamily: 'Montserrat, sans-serif',
-            fontWeight: 500,
-            fontSize: '32px',
-            color: '#000000',
-          }}
+      {/* Certificate ID - just below date, 18px, Montserrat Medium - conditionally shown */}
+      {showCertificateId && (
+        <div 
+          className="absolute"
+          style={{ bottom: '14.5%', left: '10%' }}
         >
-          {certificateId}
-        </p>
-      </div>
+          <p 
+            style={{ 
+              fontFamily: 'Montserrat, sans-serif',
+              fontWeight: 500,
+              fontSize: '18px',
+              color: '#000000',
+            }}
+          >
+            {certificateId}
+          </p>
+        </div>
+      )}
     </div>
   );
 };

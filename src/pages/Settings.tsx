@@ -8,16 +8,19 @@ import {
   Mail,
   Save,
   RefreshCw,
+  Award,
 } from 'lucide-react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 import { AdminManagement } from '@/components/admin/AdminManagement';
-
+import { useCertificateSettings } from '@/hooks/useCertificateSettings';
 export default function Settings() {
+  const { settings: certSettings, updateSettings: updateCertSettings } = useCertificateSettings();
   const [settings, setSettings] = useState({
     instituteName: 'Design Arc Academy',
     logoUrl: '',
@@ -70,6 +73,32 @@ Design Arc Academy Team`,
 
         {/* Admin Management */}
         <AdminManagement />
+
+        {/* Certificate Settings */}
+        <div className="glass-card rounded-2xl p-6">
+          <h2 className="text-lg font-semibold text-foreground mb-6 flex items-center gap-2">
+            <Award className="w-5 h-5 text-primary" />
+            Certificate Settings
+          </h2>
+
+          <div className="flex items-center justify-between p-4 rounded-xl bg-muted/30">
+            <div>
+              <Label htmlFor="showCertificateId" className="font-medium">
+                Show Certificate ID on Certificate
+              </Label>
+              <p className="text-sm text-muted-foreground mt-1">
+                When enabled, the certificate ID will be printed on the certificate
+              </p>
+            </div>
+            <Switch
+              id="showCertificateId"
+              checked={certSettings.show_certificate_id}
+              onCheckedChange={(checked) =>
+                updateCertSettings({ show_certificate_id: checked })
+              }
+            />
+          </div>
+        </div>
 
         {/* Institute Settings */}
         <div className="glass-card rounded-2xl p-6">

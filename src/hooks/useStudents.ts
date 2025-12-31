@@ -184,8 +184,15 @@ export function useStudents() {
             // Generate certificate ID: DAA-YEAR-SHORTNAME-XXXXX
             const year = new Date().getFullYear();
             const courseShort = courseData?.short_name || course.replace(/[^A-Z]/gi, '').slice(0, 3).toUpperCase();
-            const randomNum = Math.floor(10000 + Math.random() * 90000);
-            const certificateId = `DAA-${year}-${courseShort}-${String(randomNum).padStart(5, '0')}`;
+            
+            // Get count of existing certificates for this course to generate sequential number
+            const { count } = await supabase
+              .from('certificates')
+              .select('*', { count: 'exact', head: true })
+              .ilike('course', course);
+            
+            const seqNum = (count || 0) + 1;
+            const certificateId = `DAA-${year}-${courseShort}-${String(seqNum).padStart(5, '0')}`;
             
             // Create certificate
             await supabase.from('certificates').insert({
@@ -228,8 +235,15 @@ export function useStudents() {
             // Generate certificate ID: DAA-YEAR-SHORTNAME-XXXXX
             const year = new Date().getFullYear();
             const courseShort = courseData?.short_name || course.replace(/[^A-Z]/gi, '').slice(0, 3).toUpperCase();
-            const randomNum = Math.floor(10000 + Math.random() * 90000);
-            const certificateId = `DAA-${year}-${courseShort}-${String(randomNum).padStart(5, '0')}`;
+            
+            // Get count of existing certificates for this course to generate sequential number
+            const { count } = await supabase
+              .from('certificates')
+              .select('*', { count: 'exact', head: true })
+              .ilike('course', course);
+            
+            const seqNum = (count || 0) + 1;
+            const certificateId = `DAA-${year}-${courseShort}-${String(seqNum).padStart(5, '0')}`;
             
             // Check if certificate already exists for this student-course combination
             const { data: existing } = await supabase
