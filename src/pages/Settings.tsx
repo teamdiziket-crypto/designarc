@@ -60,7 +60,7 @@ Design Arc Academy Team`,
 
   return (
     <MainLayout>
-      <div className="max-w-3xl mx-auto space-y-8">
+      <div className="max-w-5xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
@@ -110,27 +110,21 @@ Design Arc Academy Team`,
             <Palette className="w-5 h-5 text-primary" />
             Certificate Text Customization
           </h2>
-          <p className="text-sm text-muted-foreground mb-6">
-            Customize the position, font size, color, and styling of text elements on the certificate. Changes are saved automatically.
+          <p className="text-sm text-muted-foreground mb-4">
+            Customize text position and styling. Changes are saved automatically.
           </p>
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Style Controls */}
-            <div className="space-y-4">
-              <h3 className="font-medium text-foreground">Style Controls</h3>
-              <CertificateStyleEditor
-                settings={certSettings}
-                defaultSettings={defaultSettings}
-                onChange={updateCertSettings}
-              />
-            </div>
-            
-            {/* Live Preview */}
-            <div className="space-y-4">
-              <h3 className="font-medium text-foreground">Live Preview</h3>
-              <CertificateLivePreview settings={certSettings} />
-            </div>
+          {/* Live Preview - Full Width */}
+          <div className="mb-6">
+            <CertificateLivePreview settings={certSettings} />
           </div>
+          
+          {/* Style Controls Below */}
+          <CertificateStyleEditor
+            settings={certSettings}
+            defaultSettings={defaultSettings}
+            onChange={updateCertSettings}
+          />
         </div>
 
         {/* Institute Settings */}
