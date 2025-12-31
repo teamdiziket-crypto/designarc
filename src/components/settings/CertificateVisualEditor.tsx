@@ -12,9 +12,9 @@ interface CertificateVisualEditorProps {
   onChange: (settings: Partial<CertificateSettings>) => void;
 }
 
-// Template dimensions
-const TEMPLATE_WIDTH = 1588;
-const TEMPLATE_HEIGHT = 2246;
+// Template dimensions (A4 Landscape for certificate)
+const TEMPLATE_WIDTH = 2246;
+const TEMPLATE_HEIGHT = 1588;
 const ASPECT_RATIO = TEMPLATE_HEIGHT / TEMPLATE_WIDTH;
 
 type ElementType = 'name' | 'date' | 'certificateId';
