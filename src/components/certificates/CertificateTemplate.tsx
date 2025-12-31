@@ -16,11 +16,11 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
   templateUrl,
   showCertificateId = false,
 }) => {
-  // Format issue date as "25th DECEMBER, 2025"
+  // Format issue date as "22nd December , 2025"
   const formatDateWithSuffix = (dateStr: string) => {
     const date = new Date(dateStr);
     const day = date.getDate();
-    const month = date.toLocaleDateString('en-US', { month: 'long' }).toUpperCase();
+    const month = date.toLocaleDateString('en-US', { month: 'long' });
     const year = date.getFullYear();
     
     // Add ordinal suffix
@@ -29,7 +29,7 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
                  : (day === 3 || day === 23) ? 'rd' 
                  : 'th';
     
-    return `${day}${suffix} ${month}, ${year}`;
+    return `${day}${suffix} ${month} , ${year}`;
   };
 
   const formattedDate = formatDateWithSuffix(issueDate);
@@ -70,10 +70,10 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
 
       {/* Dynamic Text Overlays - Positioned based on template design */}
       
-      {/* Student Name - Centered, Uppercase, 50px, Montserrat Regular, #F89A28 */}
+      {/* Student Name - Centered between "This is to certify that" and "has successfully completed" */}
       <div 
         className="absolute w-full text-center"
-        style={{ top: '44%', left: '0' }}
+        style={{ top: '40%', left: '0' }}
       >
         <p 
           style={{ 
@@ -81,7 +81,7 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
             fontWeight: 400,
             fontSize: '50px',
             color: '#F89A28',
-            letterSpacing: '2px',
+            letterSpacing: '3px',
             textTransform: 'uppercase',
           }}
         >
@@ -89,10 +89,10 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
         </p>
       </div>
 
-      {/* Issue Date - positioned at bottom left, 23px, Montserrat Medium, Black */}
+      {/* Issue Date - positioned at bottom left under DATE OF ISSUE label */}
       <div 
         className="absolute"
-        style={{ bottom: '17%', left: '10%' }}
+        style={{ bottom: '19%', left: '8%' }}
       >
         <p 
           style={{ 
@@ -110,7 +110,7 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
       {showCertificateId && (
         <div 
           className="absolute"
-          style={{ bottom: '14.5%', left: '10%' }}
+          style={{ bottom: '16%', left: '8%' }}
         >
           <p 
             style={{ 
