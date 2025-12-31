@@ -404,19 +404,19 @@ export default function Home() {
                               variant="outline"
                               onClick={() => handleViewCertificate(cert)}
                               className="btn-glass"
+                              title="View Certificate"
                             >
                               <Eye className="w-4 h-4" />
                             </Button>
-                            {cert.pdfUrl && (
-                              <Button
-                                size="sm"
-                                onClick={() => handleDownloadPDF(cert.pdfUrl!)}
-                                className="btn-primary-gradient"
-                              >
-                                <Download className="w-4 h-4 mr-1" />
-                                PDF
-                              </Button>
-                            )}
+                            <Button
+                              size="sm"
+                              onClick={() => handleViewCertificate(cert)}
+                              className="btn-primary-gradient"
+                              title="Download Certificate"
+                            >
+                              <Download className="w-4 h-4 mr-1" />
+                              Download
+                            </Button>
                           </div>
                         </div>
                       </div>

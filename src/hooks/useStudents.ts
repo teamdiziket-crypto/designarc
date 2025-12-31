@@ -174,11 +174,18 @@ export function useStudents() {
             .maybeSingle();
           
           if (!existing) {
-            // Generate certificate ID: DAC-YYYY-COURSESHORT-XXXXX
+            // Get course short_name from courses table
+            const { data: courseData } = await supabase
+              .from('courses')
+              .select('short_name')
+              .eq('name', course)
+              .maybeSingle();
+            
+            // Generate certificate ID: DAA-YEAR-SHORTNAME-XXXXX
             const year = new Date().getFullYear();
-            const courseShort = course.replace(/[^A-Z]/gi, '').slice(0, 3).toUpperCase();
+            const courseShort = courseData?.short_name || course.replace(/[^A-Z]/gi, '').slice(0, 3).toUpperCase();
             const randomNum = Math.floor(10000 + Math.random() * 90000);
-            const certificateId = `DAC-${year}-${courseShort}-${String(randomNum).padStart(5, '0')}`;
+            const certificateId = `DAA-${year}-${courseShort}-${String(randomNum).padStart(5, '0')}`;
             
             // Create certificate
             await supabase.from('certificates').insert({
@@ -211,11 +218,18 @@ export function useStudents() {
         // Generate certificates for each student and their courses
         for (const student of studentsToIssue) {
           for (const course of student.courses) {
-            // Generate certificate ID: DAC-YYYY-COURSESHORT-XXXXX
+            // Get course short_name from courses table
+            const { data: courseData } = await supabase
+              .from('courses')
+              .select('short_name')
+              .eq('name', course)
+              .maybeSingle();
+            
+            // Generate certificate ID: DAA-YEAR-SHORTNAME-XXXXX
             const year = new Date().getFullYear();
-            const courseShort = course.replace(/[^A-Z]/gi, '').slice(0, 3).toUpperCase();
+            const courseShort = courseData?.short_name || course.replace(/[^A-Z]/gi, '').slice(0, 3).toUpperCase();
             const randomNum = Math.floor(10000 + Math.random() * 90000);
-            const certificateId = `DAC-${year}-${courseShort}-${String(randomNum).padStart(5, '0')}`;
+            const certificateId = `DAA-${year}-${courseShort}-${String(randomNum).padStart(5, '0')}`;
             
             // Check if certificate already exists for this student-course combination
             const { data: existing } = await supabase

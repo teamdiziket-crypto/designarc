@@ -14,7 +14,7 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
   certificateId,
   templateUrl,
 }) => {
-  // Format issue date as "25th JUNE, 2025"
+  // Format issue date as "25th DECEMBER, 2025"
   const formatDateWithSuffix = (dateStr: string) => {
     const date = new Date(dateStr);
     const day = date.getDate();
@@ -35,12 +35,16 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
   if (!templateUrl) {
     return (
       <div 
-        className="relative w-[794px] h-[1123px] mx-auto flex items-center justify-center"
-        style={{ backgroundColor: '#FFF7ED' }}
+        className="certificate-content relative mx-auto flex items-center justify-center"
+        style={{ 
+          width: '1588px', 
+          height: '2246px',
+          backgroundColor: '#FFF7ED' 
+        }}
       >
         <div className="text-center text-muted-foreground">
-          <p className="text-lg font-medium">No template uploaded</p>
-          <p className="text-sm">Please upload a certificate template for this course</p>
+          <p className="text-2xl font-medium">No template uploaded</p>
+          <p className="text-lg">Please upload a certificate template for this course</p>
         </div>
       </div>
     );
@@ -48,10 +52,14 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
 
   return (
     <div 
-      className="relative w-[794px] h-[1123px] mx-auto overflow-hidden"
-      style={{ fontFamily: 'Montserrat, sans-serif' }}
+      className="certificate-content relative mx-auto overflow-hidden"
+      style={{ 
+        width: '1588px', 
+        height: '2246px',
+        fontFamily: 'Montserrat, sans-serif' 
+      }}
     >
-      {/* Background Template Image */}
+      {/* Background Template Image - High resolution */}
       <img 
         src={templateUrl} 
         alt="Certificate Template" 
@@ -60,18 +68,18 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
 
       {/* Dynamic Text Overlays - Positioned based on template design */}
       
-      {/* Student Name - Capitalize, 50px, Montserrat Regular, #F89A28 */}
+      {/* Student Name - Centered between the two text lines, Uppercase, 100px, Montserrat Regular, #F89A28 */}
       <div 
         className="absolute w-full text-center"
-        style={{ top: '44%', left: '0' }}
+        style={{ top: '46%', left: '0' }}
       >
         <p 
           style={{ 
             fontFamily: 'Montserrat, sans-serif',
             fontWeight: 400,
-            fontSize: '50px',
+            fontSize: '100px',
             color: '#F89A28',
-            letterSpacing: '2px',
+            letterSpacing: '4px',
             textTransform: 'uppercase',
           }}
         >
@@ -79,16 +87,16 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
         </p>
       </div>
 
-      {/* Issue Date - 23px, Montserrat Medium, Black, format: "25th JUNE, 2025" */}
+      {/* Issue Date - positioned at bottom left, 46px, Montserrat Medium, Black */}
       <div 
         className="absolute"
-        style={{ bottom: '17%', left: '10%' }}
+        style={{ bottom: '11.5%', left: '10%' }}
       >
         <p 
           style={{ 
             fontFamily: 'Montserrat, sans-serif',
             fontWeight: 500,
-            fontSize: '23px',
+            fontSize: '46px',
             color: '#000000',
           }}
         >
@@ -96,16 +104,16 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
         </p>
       </div>
 
-      {/* Certificate ID - 23px, Montserrat Medium */}
+      {/* Certificate ID - just below date, 32px, Montserrat Medium */}
       <div 
-        className="absolute w-full text-center"
-        style={{ bottom: '4%', left: '0' }}
+        className="absolute"
+        style={{ bottom: '8.5%', left: '10%' }}
       >
         <p 
           style={{ 
             fontFamily: 'Montserrat, sans-serif',
             fontWeight: 500,
-            fontSize: '23px',
+            fontSize: '32px',
             color: '#000000',
           }}
         >
