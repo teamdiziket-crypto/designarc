@@ -10,17 +10,27 @@ interface CertificateTemplateProps {
 
 const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
   fullName,
-  course,
   issueDate,
   certificateId,
   templateUrl,
 }) => {
-  // Format issue date as DD Month YYYY
-  const formattedDate = new Date(issueDate).toLocaleDateString('en-GB', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-  });
+  // Format issue date as "25th JUNE, 2025"
+  const formatDateWithSuffix = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const day = date.getDate();
+    const month = date.toLocaleDateString('en-US', { month: 'long' }).toUpperCase();
+    const year = date.getFullYear();
+    
+    // Add ordinal suffix
+    const suffix = (day === 1 || day === 21 || day === 31) ? 'st' 
+                 : (day === 2 || day === 22) ? 'nd'
+                 : (day === 3 || day === 23) ? 'rd' 
+                 : 'th';
+    
+    return `${day}${suffix} ${month}, ${year}`;
+  };
+
+  const formattedDate = formatDateWithSuffix(issueDate);
 
   if (!templateUrl) {
     return (
@@ -50,56 +60,56 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
 
       {/* Dynamic Text Overlays - Positioned based on template design */}
       
-      {/* Student Name - Centered below "This is to certify that" */}
+      {/* Student Name - Capitalize, 50px, Montserrat Regular, #F89A28 */}
       <div 
         className="absolute w-full text-center"
-        style={{ top: '42%', left: '0' }}
+        style={{ top: '44%', left: '0' }}
       >
         <p 
-          className="text-[36px] px-12"
           style={{ 
-            fontFamily: "'Playfair Display', serif",
-            fontWeight: 600,
-            color: '#1F2937',
+            fontFamily: 'Montserrat, sans-serif',
+            fontWeight: 400,
+            fontSize: '50px',
+            color: '#F89A28',
             letterSpacing: '2px',
+            textTransform: 'uppercase',
           }}
         >
-          {fullName || 'Student Name'}
+          {fullName || 'STUDENT NAME'}
         </p>
       </div>
 
-      {/* Issue Date - Below "DATE OF ISSUE" label on left side */}
+      {/* Issue Date - 23px, Montserrat Medium, Black, format: "25th JUNE, 2025" */}
       <div 
         className="absolute"
-        style={{ bottom: '15.5%', left: '10%' }}
+        style={{ bottom: '17%', left: '10%' }}
       >
         <p 
-          className="text-[14px]"
           style={{ 
             fontFamily: 'Montserrat, sans-serif',
             fontWeight: 500,
-            color: '#4B5563',
+            fontSize: '23px',
+            color: '#000000',
           }}
         >
           {formattedDate}
         </p>
       </div>
 
-      {/* Certificate ID - Small text at bottom */}
+      {/* Certificate ID - 23px, Montserrat Medium */}
       <div 
         className="absolute w-full text-center"
         style={{ bottom: '4%', left: '0' }}
       >
         <p 
-          className="text-[10px]"
           style={{ 
-            fontFamily: "'JetBrains Mono', monospace",
-            fontWeight: 400,
-            color: '#6B7280',
-            letterSpacing: '0.5px',
+            fontFamily: 'Montserrat, sans-serif',
+            fontWeight: 500,
+            fontSize: '23px',
+            color: '#000000',
           }}
         >
-          Certificate ID: {certificateId}
+          {certificateId}
         </p>
       </div>
     </div>
