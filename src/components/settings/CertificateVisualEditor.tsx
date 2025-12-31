@@ -1,9 +1,8 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { X, RotateCcw } from 'lucide-react';
+import { RotateCcw, X, Move } from 'lucide-react';
 import type { CertificateSettings, TextElementStyle } from '@/hooks/useCertificateSettings';
 import { useCourses } from '@/contexts/CoursesContext';
 
@@ -20,213 +19,135 @@ const ASPECT_RATIO = TEMPLATE_HEIGHT / TEMPLATE_WIDTH;
 
 type ElementType = 'name' | 'date' | 'certificateId';
 
-interface DraggableTextProps {
-  type: ElementType;
+interface FloatingEditorProps {
   label: string;
   style: TextElementStyle;
-  defaultStyle: TextElementStyle;
-  scale: number;
-  text: string;
-  isSelected: boolean;
-  onSelect: () => void;
+  position: { x: number; y: number };
+  onClose: () => void;
   onChange: (style: Partial<TextElementStyle>) => void;
   onReset: () => void;
 }
 
-function DraggableText({ 
-  type, label, style, defaultStyle, scale, text, isSelected, onSelect, onChange, onReset 
-}: DraggableTextProps) {
-  const elementRef = useRef<HTMLDivElement>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const [initialPos, setInitialPos] = useState({ top: 0, left: 0 });
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    onSelect();
-    setIsDragging(true);
-    setDragStart({ x: e.clientX, y: e.clientY });
-    setInitialPos({ top: style.top, left: style.left });
-  };
-
-  useEffect(() => {
-    if (!isDragging) return;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      const deltaX = (e.clientX - dragStart.x) / scale;
-      const deltaY = (e.clientY - dragStart.y) / scale;
-      
-      const newLeft = initialPos.left + (deltaX / TEMPLATE_WIDTH) * 100;
-      const newTop = initialPos.top + (deltaY / TEMPLATE_HEIGHT) * 100;
-      
-      onChange({
-        left: Math.max(0, Math.min(100, newLeft)),
-        top: Math.max(0, Math.min(100, newTop)),
-      });
-    };
-
-    const handleMouseUp = () => {
-      setIsDragging(false);
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
-
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [isDragging, dragStart, initialPos, scale, onChange]);
-
-  const positionStyle: React.CSSProperties = {
-    position: 'absolute',
-    top: `${style.top}%`,
-    left: style.textAlign === 'center' ? '0' : `${style.left}%`,
-    width: style.textAlign === 'center' ? '100%' : 'auto',
-    textAlign: style.textAlign,
-    cursor: isDragging ? 'grabbing' : 'grab',
-    userSelect: 'none',
-  };
-
-  const textStyle: React.CSSProperties = {
-    fontFamily: 'Montserrat, sans-serif',
-    fontWeight: style.fontWeight,
-    fontSize: `${style.fontSize}px`,
-    color: style.color,
-    letterSpacing: `${style.letterSpacing}px`,
-    textTransform: type === 'name' ? 'capitalize' : 'none',
-  };
-
+function FloatingEditor({ label, style, position, onClose, onChange, onReset }: FloatingEditorProps) {
   return (
-    <Popover open={isSelected}>
-      <PopoverTrigger asChild>
-        <div
-          ref={elementRef}
-          style={positionStyle}
-          onMouseDown={handleMouseDown}
-          onClick={(e) => { e.stopPropagation(); onSelect(); }}
-          className={`transition-all ${isSelected ? 'ring-2 ring-primary ring-offset-2 rounded' : 'hover:ring-2 hover:ring-primary/50 hover:ring-offset-1 rounded'}`}
-        >
-          <p style={textStyle}>{text}</p>
+    <div 
+      className="fixed z-50 bg-background border rounded-lg shadow-xl p-3 w-64 animate-in fade-in zoom-in-95 duration-150"
+      style={{ 
+        left: `${position.x}px`, 
+        top: `${position.y}px`,
+      }}
+      onClick={(e) => e.stopPropagation()}
+      onContextMenu={(e) => e.preventDefault()}
+    >
+      <div className="space-y-3">
+        <div className="flex items-center justify-between border-b pb-2">
+          <span className="font-medium text-sm">{label}</span>
+          <div className="flex gap-1">
+            <Button size="icon" variant="ghost" className="h-6 w-6" onClick={onReset} title="Reset">
+              <RotateCcw className="h-3 w-3" />
+            </Button>
+            <Button size="icon" variant="ghost" className="h-6 w-6" onClick={onClose} title="Close">
+              <X className="h-3 w-3" />
+            </Button>
+          </div>
         </div>
-      </PopoverTrigger>
-      <PopoverContent 
-        className="w-64 p-3 z-50" 
-        side="right" 
-        align="start"
-        onPointerDownOutside={(e) => e.preventDefault()}
-      >
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="font-medium text-sm">{label}</span>
-            <div className="flex gap-1">
-              <Button size="icon" variant="ghost" className="h-6 w-6" onClick={onReset}>
-                <RotateCcw className="h-3 w-3" />
-              </Button>
-              <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => onSelect()}>
-                <X className="h-3 w-3" />
-              </Button>
-            </div>
-          </div>
 
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <Label className="text-xs">Top %</Label>
-              <Input
-                type="number"
-                value={style.top.toFixed(1)}
-                onChange={(e) => onChange({ top: parseFloat(e.target.value) || 0 })}
-                className="h-7 text-xs"
-                step="0.5"
-              />
-            </div>
-            <div>
-              <Label className="text-xs">Left %</Label>
-              <Input
-                type="number"
-                value={style.left.toFixed(1)}
-                onChange={(e) => onChange({ left: parseFloat(e.target.value) || 0 })}
-                className="h-7 text-xs"
-                step="0.5"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <Label className="text-xs">Font Size</Label>
-              <Input
-                type="number"
-                value={style.fontSize}
-                onChange={(e) => onChange({ fontSize: parseInt(e.target.value) || 12 })}
-                className="h-7 text-xs"
-              />
-            </div>
-            <div>
-              <Label className="text-xs">Color</Label>
-              <div className="flex gap-1">
-                <input
-                  type="color"
-                  value={style.color}
-                  onChange={(e) => onChange({ color: e.target.value })}
-                  className="w-7 h-7 rounded cursor-pointer border"
-                />
-                <Input
-                  value={style.color}
-                  onChange={(e) => onChange({ color: e.target.value })}
-                  className="h-7 text-xs flex-1"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <Label className="text-xs">Weight</Label>
-              <select
-                value={style.fontWeight}
-                onChange={(e) => onChange({ fontWeight: parseInt(e.target.value) })}
-                className="w-full h-7 text-xs rounded border bg-background px-2"
-              >
-                <option value={300}>Light</option>
-                <option value={400}>Regular</option>
-                <option value={500}>Medium</option>
-                <option value={600}>Semi Bold</option>
-                <option value={700}>Bold</option>
-              </select>
-            </div>
-            <div>
-              <Label className="text-xs">Spacing</Label>
-              <Input
-                type="number"
-                value={style.letterSpacing}
-                onChange={(e) => onChange({ letterSpacing: parseFloat(e.target.value) || 0 })}
-                className="h-7 text-xs"
-                step="0.5"
-              />
-            </div>
-          </div>
-
+        <div className="grid grid-cols-2 gap-2">
           <div>
-            <Label className="text-xs">Align</Label>
-            <div className="flex gap-1 mt-1">
-              {(['left', 'center', 'right'] as const).map((align) => (
-                <Button
-                  key={align}
-                  size="sm"
-                  variant={style.textAlign === align ? 'default' : 'outline'}
-                  className="flex-1 h-7 text-xs capitalize"
-                  onClick={() => onChange({ textAlign: align })}
-                >
-                  {align}
-                </Button>
-              ))}
+            <Label className="text-xs text-muted-foreground">Top %</Label>
+            <Input
+              type="number"
+              value={style.top.toFixed(1)}
+              onChange={(e) => onChange({ top: parseFloat(e.target.value) || 0 })}
+              className="h-7 text-xs"
+              step="0.5"
+            />
+          </div>
+          <div>
+            <Label className="text-xs text-muted-foreground">Left %</Label>
+            <Input
+              type="number"
+              value={style.left.toFixed(1)}
+              onChange={(e) => onChange({ left: parseFloat(e.target.value) || 0 })}
+              className="h-7 text-xs"
+              step="0.5"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <Label className="text-xs text-muted-foreground">Font Size</Label>
+            <Input
+              type="number"
+              value={style.fontSize}
+              onChange={(e) => onChange({ fontSize: parseInt(e.target.value) || 12 })}
+              className="h-7 text-xs"
+            />
+          </div>
+          <div>
+            <Label className="text-xs text-muted-foreground">Color</Label>
+            <div className="flex gap-1">
+              <input
+                type="color"
+                value={style.color}
+                onChange={(e) => onChange({ color: e.target.value })}
+                className="w-7 h-7 rounded cursor-pointer border-0 p-0"
+              />
+              <Input
+                value={style.color}
+                onChange={(e) => onChange({ color: e.target.value })}
+                className="h-7 text-xs flex-1 font-mono"
+              />
             </div>
           </div>
         </div>
-      </PopoverContent>
-    </Popover>
+
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <Label className="text-xs text-muted-foreground">Weight</Label>
+            <select
+              value={style.fontWeight}
+              onChange={(e) => onChange({ fontWeight: parseInt(e.target.value) })}
+              className="w-full h-7 text-xs rounded border bg-background px-2"
+            >
+              <option value={300}>Light</option>
+              <option value={400}>Regular</option>
+              <option value={500}>Medium</option>
+              <option value={600}>Semi Bold</option>
+              <option value={700}>Bold</option>
+            </select>
+          </div>
+          <div>
+            <Label className="text-xs text-muted-foreground">Spacing</Label>
+            <Input
+              type="number"
+              value={style.letterSpacing}
+              onChange={(e) => onChange({ letterSpacing: parseFloat(e.target.value) || 0 })}
+              className="h-7 text-xs"
+              step="0.5"
+            />
+          </div>
+        </div>
+
+        <div>
+          <Label className="text-xs text-muted-foreground">Alignment</Label>
+          <div className="flex gap-1 mt-1">
+            {(['left', 'center', 'right'] as const).map((align) => (
+              <Button
+                key={align}
+                size="sm"
+                variant={style.textAlign === align ? 'default' : 'outline'}
+                className="flex-1 h-7 text-xs capitalize"
+                onClick={() => onChange({ textAlign: align })}
+              >
+                {align}
+              </Button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -235,6 +156,14 @@ export function CertificateVisualEditor({ settings, defaultSettings, onChange }:
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(0.5);
   const [selectedElement, setSelectedElement] = useState<ElementType | null>(null);
+  const [editorPosition, setEditorPosition] = useState({ x: 0, y: 0 });
+  const [dragState, setDragState] = useState<{
+    element: ElementType;
+    startX: number;
+    startY: number;
+    initialTop: number;
+    initialLeft: number;
+  } | null>(null);
 
   const [previewData, setPreviewData] = useState({
     fullName: 'John Doe',
@@ -270,23 +199,133 @@ export function CertificateVisualEditor({ settings, defaultSettings, onChange }:
     return `${day}${suffix} ${month}, ${year}`;
   };
 
-  const handleStyleChange = (element: ElementType, updates: Partial<TextElementStyle>) => {
-    const key = element === 'name' ? 'name_style' 
-              : element === 'date' ? 'date_style' 
-              : 'certificate_id_style';
-    const currentStyle = settings[key];
-    onChange({ [key]: { ...currentStyle, ...updates } });
+  const getStyleKey = (element: ElementType) => {
+    return element === 'name' ? 'name_style' 
+         : element === 'date' ? 'date_style' 
+         : 'certificate_id_style';
   };
 
+  const handleStyleChange = useCallback((element: ElementType, updates: Partial<TextElementStyle>) => {
+    const key = getStyleKey(element);
+    const currentStyle = settings[key];
+    onChange({ [key]: { ...currentStyle, ...updates } });
+  }, [settings, onChange]);
+
   const handleReset = (element: ElementType) => {
-    const key = element === 'name' ? 'name_style' 
-              : element === 'date' ? 'date_style' 
-              : 'certificate_id_style';
+    const key = getStyleKey(element);
     onChange({ [key]: defaultSettings[key] });
   };
 
+  // Handle right-click to open editor
+  const handleContextMenu = (e: React.MouseEvent, element: ElementType) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Position the editor near the click, but ensure it stays in viewport
+    const x = Math.min(e.clientX, window.innerWidth - 280);
+    const y = Math.min(e.clientY, window.innerHeight - 400);
+    
+    setEditorPosition({ x, y });
+    setSelectedElement(element);
+  };
+
+  // Handle mouse down for dragging
+  const handleMouseDown = (e: React.MouseEvent, element: ElementType) => {
+    if (e.button !== 0) return; // Only left click
+    e.preventDefault();
+    
+    const style = settings[getStyleKey(element)];
+    setDragState({
+      element,
+      startX: e.clientX,
+      startY: e.clientY,
+      initialTop: style.top,
+      initialLeft: style.left,
+    });
+  };
+
+  // Handle mouse move for dragging
+  useEffect(() => {
+    if (!dragState) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const deltaX = (e.clientX - dragState.startX) / scale;
+      const deltaY = (e.clientY - dragState.startY) / scale;
+      
+      const newLeft = dragState.initialLeft + (deltaX / TEMPLATE_WIDTH) * 100;
+      const newTop = dragState.initialTop + (deltaY / TEMPLATE_HEIGHT) * 100;
+      
+      handleStyleChange(dragState.element, {
+        left: Math.max(0, Math.min(100, newLeft)),
+        top: Math.max(0, Math.min(100, newTop)),
+      });
+    };
+
+    const handleMouseUp = () => {
+      setDragState(null);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [dragState, scale, handleStyleChange]);
+
+  // Close editor when clicking outside
   const handleBackgroundClick = () => {
     setSelectedElement(null);
+  };
+
+  // Render a text element
+  const renderTextElement = (
+    element: ElementType,
+    style: TextElementStyle,
+    text: string
+  ) => {
+    const isDragging = dragState?.element === element;
+    
+    const positionStyle: React.CSSProperties = {
+      position: 'absolute',
+      top: `${style.top}%`,
+      left: style.textAlign === 'center' ? '0' : `${style.left}%`,
+      width: style.textAlign === 'center' ? '100%' : 'auto',
+      textAlign: style.textAlign,
+      cursor: isDragging ? 'grabbing' : 'grab',
+      userSelect: 'none',
+      transition: isDragging ? 'none' : 'box-shadow 0.15s ease',
+    };
+
+    const textStyle: React.CSSProperties = {
+      fontFamily: 'Montserrat, sans-serif',
+      fontWeight: style.fontWeight,
+      fontSize: `${style.fontSize}px`,
+      color: style.color,
+      letterSpacing: `${style.letterSpacing}px`,
+      textTransform: element === 'name' ? 'capitalize' : 'none',
+    };
+
+    return (
+      <div
+        key={element}
+        style={positionStyle}
+        onMouseDown={(e) => handleMouseDown(e, element)}
+        onContextMenu={(e) => handleContextMenu(e, element)}
+        className={`group rounded px-2 py-1 ${
+          selectedElement === element 
+            ? 'ring-2 ring-primary bg-primary/10' 
+            : 'hover:ring-2 hover:ring-primary/50 hover:bg-primary/5'
+        }`}
+      >
+        <p style={textStyle}>{text}</p>
+        <div className="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-foreground text-background text-xs px-2 py-0.5 rounded whitespace-nowrap flex items-center gap-1">
+          <Move className="w-3 h-3" />
+          Drag to move • Right-click to edit
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -327,14 +366,10 @@ export function CertificateVisualEditor({ settings, defaultSettings, onChange }:
         )}
       </div>
 
-      <p className="text-xs text-muted-foreground">
-        Click and drag text elements to reposition. Click to open style editor.
-      </p>
-
       {/* Visual Editor Canvas */}
       <div 
         ref={containerRef}
-        className="relative w-full overflow-hidden rounded-lg border-2 border-dashed border-muted-foreground/30"
+        className="relative w-full overflow-hidden rounded-lg cursor-crosshair"
         style={{ paddingBottom: `${ASPECT_RATIO * 100}%` }}
         onClick={handleBackgroundClick}
       >
@@ -361,48 +396,31 @@ export function CertificateVisualEditor({ settings, defaultSettings, onChange }:
           )}
 
           {/* Draggable Text Elements */}
-          <DraggableText
-            type="name"
-            label="Student Name"
-            style={settings.name_style}
-            defaultStyle={defaultSettings.name_style}
-            scale={scale}
-            text={previewData.fullName}
-            isSelected={selectedElement === 'name'}
-            onSelect={() => setSelectedElement(selectedElement === 'name' ? null : 'name')}
-            onChange={(updates) => handleStyleChange('name', updates)}
-            onReset={() => handleReset('name')}
-          />
-
-          <DraggableText
-            type="date"
-            label="Issue Date"
-            style={settings.date_style}
-            defaultStyle={defaultSettings.date_style}
-            scale={scale}
-            text={formatDate(previewData.issueDate)}
-            isSelected={selectedElement === 'date'}
-            onSelect={() => setSelectedElement(selectedElement === 'date' ? null : 'date')}
-            onChange={(updates) => handleStyleChange('date', updates)}
-            onReset={() => handleReset('date')}
-          />
-
-          {settings.show_certificate_id && (
-            <DraggableText
-              type="certificateId"
-              label="Certificate ID"
-              style={settings.certificate_id_style}
-              defaultStyle={defaultSettings.certificate_id_style}
-              scale={scale}
-              text={previewData.certificateId}
-              isSelected={selectedElement === 'certificateId'}
-              onSelect={() => setSelectedElement(selectedElement === 'certificateId' ? null : 'certificateId')}
-              onChange={(updates) => handleStyleChange('certificateId', updates)}
-              onReset={() => handleReset('certificateId')}
-            />
-          )}
+          {renderTextElement('name', settings.name_style, previewData.fullName)}
+          {renderTextElement('date', settings.date_style, formatDate(previewData.issueDate))}
+          {settings.show_certificate_id && 
+            renderTextElement('certificateId', settings.certificate_id_style, previewData.certificateId)
+          }
         </div>
       </div>
+
+      {/* Floating Editor */}
+      {selectedElement && (
+        <>
+          <div 
+            className="fixed inset-0 z-40" 
+            onClick={handleBackgroundClick}
+          />
+          <FloatingEditor
+            label={selectedElement === 'name' ? 'Student Name' : selectedElement === 'date' ? 'Issue Date' : 'Certificate ID'}
+            style={settings[getStyleKey(selectedElement)]}
+            position={editorPosition}
+            onClose={() => setSelectedElement(null)}
+            onChange={(updates) => handleStyleChange(selectedElement, updates)}
+            onReset={() => handleReset(selectedElement)}
+          />
+        </>
+      )}
     </div>
   );
 }
