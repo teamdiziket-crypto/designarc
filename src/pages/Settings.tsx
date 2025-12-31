@@ -21,6 +21,8 @@ import { toast } from 'sonner';
 import { AdminManagement } from '@/components/admin/AdminManagement';
 import { useCertificateSettings } from '@/hooks/useCertificateSettings';
 import { CertificateStyleEditor } from '@/components/settings/CertificateStyleEditor';
+import { CertificateLivePreview } from '@/components/settings/CertificateLivePreview';
+
 export default function Settings() {
   const { settings: certSettings, updateSettings: updateCertSettings, defaultSettings } = useCertificateSettings();
   const [settings, setSettings] = useState({
@@ -102,21 +104,33 @@ Design Arc Academy Team`,
           </div>
         </div>
 
-        {/* Certificate Text Customization */}
+        {/* Certificate Text Customization with Live Preview */}
         <div className="glass-card rounded-2xl p-6">
           <h2 className="text-lg font-semibold text-foreground mb-6 flex items-center gap-2">
             <Palette className="w-5 h-5 text-primary" />
             Certificate Text Customization
           </h2>
           <p className="text-sm text-muted-foreground mb-6">
-            Customize the position, font size, color, and styling of text elements on the certificate.
+            Customize the position, font size, color, and styling of text elements on the certificate. Changes are saved automatically.
           </p>
           
-          <CertificateStyleEditor
-            settings={certSettings}
-            defaultSettings={defaultSettings}
-            onChange={updateCertSettings}
-          />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Style Controls */}
+            <div className="space-y-4">
+              <h3 className="font-medium text-foreground">Style Controls</h3>
+              <CertificateStyleEditor
+                settings={certSettings}
+                defaultSettings={defaultSettings}
+                onChange={updateCertSettings}
+              />
+            </div>
+            
+            {/* Live Preview */}
+            <div className="space-y-4">
+              <h3 className="font-medium text-foreground">Live Preview</h3>
+              <CertificateLivePreview settings={certSettings} />
+            </div>
+          </div>
         </div>
 
         {/* Institute Settings */}
