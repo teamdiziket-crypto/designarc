@@ -12,10 +12,10 @@ interface CertificateVisualEditorProps {
   onChange: (settings: Partial<CertificateSettings>) => void;
 }
 
-// Template dimensions (A4 Landscape for certificate)
-const TEMPLATE_WIDTH = 2246;
-const TEMPLATE_HEIGHT = 1588;
-const ASPECT_RATIO = TEMPLATE_HEIGHT / TEMPLATE_WIDTH;
+type TemplateSize = { width: number; height: number };
+
+// Fallback size until the template image loads (we then read its natural size)
+const DEFAULT_TEMPLATE_SIZE: TemplateSize = { width: 1588, height: 2246 };
 
 type ElementType = 'name' | 'date' | 'certificateId';
 
@@ -154,6 +154,10 @@ function FloatingEditor({ label, style, position, onClose, onChange, onReset }: 
 export function CertificateVisualEditor({ settings, defaultSettings, onChange }: CertificateVisualEditorProps) {
   const { coursesData, getTemplateUrl } = useCourses();
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const [templateSize, setTemplateSize] = useState<TemplateSize>(DEFAULT_TEMPLATE_SIZE);
+  const aspectRatio = templateSize.height / templateSize.width;
+
   const [scale, setScale] = useState(0.5);
   const [selectedElement, setSelectedElement] = useState<ElementType | null>(null);
   const [editorPosition, setEditorPosition] = useState({ x: 0, y: 0 });
@@ -174,19 +178,25 @@ export function CertificateVisualEditor({ settings, defaultSettings, onChange }:
 
   const templateUrl = getTemplateUrl(previewData.course);
 
-  // Calculate scale
+  useEffect(() => {
+    // Reset until the new image loads (then we read naturalWidth/Height)
+    setTemplateSize(DEFAULT_TEMPLATE_SIZE);
+  }, [templateUrl]);
+
+  // Calculate scale (fit to width)
   useEffect(() => {
     const updateScale = () => {
-      if (containerRef.current) {
-        const containerWidth = containerRef.current.offsetWidth;
-        setScale(containerWidth / TEMPLATE_WIDTH);
-      }
+      if (!containerRef.current) return;
+      const containerWidth = containerRef.current.offsetWidth;
+      setScale(containerWidth / templateSize.width);
     };
+
     updateScale();
+
     const observer = new ResizeObserver(updateScale);
     if (containerRef.current) observer.observe(containerRef.current);
     return () => observer.disconnect();
-  }, []);
+  }, [templateSize.width]);
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -251,9 +261,9 @@ export function CertificateVisualEditor({ settings, defaultSettings, onChange }:
     const handleMouseMove = (e: MouseEvent) => {
       const deltaX = (e.clientX - dragState.startX) / scale;
       const deltaY = (e.clientY - dragState.startY) / scale;
-      
-      const newLeft = dragState.initialLeft + (deltaX / TEMPLATE_WIDTH) * 100;
-      const newTop = dragState.initialTop + (deltaY / TEMPLATE_HEIGHT) * 100;
+
+      const newLeft = dragState.initialLeft + (deltaX / templateSize.width) * 100;
+      const newTop = dragState.initialTop + (deltaY / templateSize.height) * 100;
       
       handleStyleChange(dragState.element, {
         left: Math.max(0, Math.min(100, newLeft)),
@@ -368,7 +378,7 @@ export function CertificateVisualEditor({ settings, defaultSettings, onChange }:
         ref={containerRef}
         className="relative w-full rounded-lg"
         style={{ 
-          paddingBottom: `${ASPECT_RATIO * 100}%`,
+          paddingBottom: `${aspectRatio * 100}%`,
           overflow: 'hidden',
         }}
         onClick={handleBackgroundClick}
@@ -376,8 +386,8 @@ export function CertificateVisualEditor({ settings, defaultSettings, onChange }:
         <div 
           className="absolute top-0 left-0 origin-top-left"
           style={{ 
-            width: `${TEMPLATE_WIDTH}px`,
-            height: `${TEMPLATE_HEIGHT}px`,
+            width: `${templateSize.width}px`,
+            height: `${templateSize.height}px`,
             transform: `scale(${scale})`,
           }}
         >
@@ -388,6 +398,12 @@ export function CertificateVisualEditor({ settings, defaultSettings, onChange }:
               alt="Certificate Template" 
               className="absolute inset-0 w-full h-full object-cover pointer-events-none"
               draggable={false}
+              onLoad={(e) => {
+                const img = e.currentTarget;
+                if (img.naturalWidth && img.naturalHeight) {
+                  setTemplateSize({ width: img.naturalWidth, height: img.naturalHeight });
+                }
+              }}
             />
           ) : (
             <div className="absolute inset-0 bg-amber-50 flex items-center justify-center">
