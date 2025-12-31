@@ -304,7 +304,7 @@ export function CertificateVisualEditor({ settings, defaultSettings, onChange }:
       fontSize: `${style.fontSize}px`,
       color: style.color,
       letterSpacing: `${style.letterSpacing}px`,
-      textTransform: element === 'name' ? 'capitalize' : 'none',
+      textTransform: element === 'name' ? 'uppercase' : 'none',
     };
 
     return (

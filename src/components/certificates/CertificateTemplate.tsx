@@ -69,13 +69,9 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
     return `${day}${suffix} ${month}, ${year}`;
   };
 
-  // Capitalize name (first letter of each word uppercase)
-  const capitalizeName = (name: string) => {
-    return name
-      .toLowerCase()
-      .split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
+  // Uppercase name
+  const formatName = (name: string) => {
+    return name.toUpperCase();
   };
 
   const formattedDate = formatDateWithSuffix(issueDate);
@@ -140,7 +136,7 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
         style={getPositionStyle(nameStyle)}
       >
         <p style={getTextStyle(nameStyle)}>
-          {capitalizeName(fullName) || 'Student Name'}
+          {formatName(fullName) || 'Student Name'}
         </p>
       </div>
 
