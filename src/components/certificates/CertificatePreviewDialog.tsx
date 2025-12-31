@@ -61,6 +61,9 @@ export function CertificatePreviewDialog({
               certificateId={certificate.certificateId}
               templateUrl={templateUrl}
               showCertificateId={settings.show_certificate_id}
+              nameStyle={settings.name_style}
+              dateStyle={settings.date_style}
+              certificateIdStyle={settings.certificate_id_style}
             />
           </div>
         </div>

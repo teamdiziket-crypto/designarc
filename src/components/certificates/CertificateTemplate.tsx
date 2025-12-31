@@ -1,4 +1,5 @@
 import React from 'react';
+import type { TextElementStyle } from '@/hooks/useCertificateSettings';
 
 interface CertificateTemplateProps {
   fullName: string;
@@ -7,7 +8,40 @@ interface CertificateTemplateProps {
   certificateId: string;
   templateUrl?: string | null;
   showCertificateId?: boolean;
+  nameStyle?: TextElementStyle;
+  dateStyle?: TextElementStyle;
+  certificateIdStyle?: TextElementStyle;
 }
+
+const defaultNameStyle: TextElementStyle = {
+  top: 41.5,
+  left: 50,
+  fontSize: 50,
+  color: '#F89A28',
+  fontWeight: 400,
+  letterSpacing: 3,
+  textAlign: 'center',
+};
+
+const defaultDateStyle: TextElementStyle = {
+  top: 82.5,
+  left: 7.5,
+  fontSize: 23,
+  color: '#000000',
+  fontWeight: 500,
+  letterSpacing: 0,
+  textAlign: 'left',
+};
+
+const defaultCertIdStyle: TextElementStyle = {
+  top: 85.5,
+  left: 7.5,
+  fontSize: 18,
+  color: '#000000',
+  fontWeight: 500,
+  letterSpacing: 0,
+  textAlign: 'left',
+};
 
 const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
   fullName,
@@ -15,6 +49,9 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
   certificateId,
   templateUrl,
   showCertificateId = false,
+  nameStyle = defaultNameStyle,
+  dateStyle = defaultDateStyle,
+  certificateIdStyle = defaultCertIdStyle,
 }) => {
   // Format issue date as "25th JUNE, 2025"
   const formatDateWithSuffix = (dateStr: string) => {
@@ -61,6 +98,24 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
     );
   }
 
+  const getPositionStyle = (style: TextElementStyle) => {
+    const baseStyle: React.CSSProperties = {
+      top: `${style.top}%`,
+      left: style.textAlign === 'center' ? '0' : `${style.left}%`,
+      width: style.textAlign === 'center' ? '100%' : 'auto',
+      textAlign: style.textAlign,
+    };
+    return baseStyle;
+  };
+
+  const getTextStyle = (style: TextElementStyle): React.CSSProperties => ({
+    fontFamily: 'Montserrat, sans-serif',
+    fontWeight: style.fontWeight,
+    fontSize: `${style.fontSize}px`,
+    color: style.color,
+    letterSpacing: `${style.letterSpacing}px`,
+  });
+
   return (
     <div 
       className="certificate-content relative mx-auto overflow-hidden"
@@ -77,57 +132,35 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
         className="absolute inset-0 w-full h-full object-cover"
       />
 
-      {/* Dynamic Text Overlays - Positioned based on template design */}
+      {/* Dynamic Text Overlays - Positioned based on settings */}
       
-      {/* Student Name - Capitalize, 50px, Montserrat Regular, #F89A28 */}
+      {/* Student Name */}
       <div 
-        className="absolute w-full text-center"
-        style={{ top: '41.5%', left: '0' }}
+        className="absolute"
+        style={getPositionStyle(nameStyle)}
       >
-        <p 
-          style={{ 
-            fontFamily: 'Montserrat, sans-serif',
-            fontWeight: 400,
-            fontSize: '50px',
-            color: '#F89A28',
-            letterSpacing: '3px',
-          }}
-        >
+        <p style={getTextStyle(nameStyle)}>
           {capitalizeName(fullName) || 'Student Name'}
         </p>
       </div>
 
-      {/* Issue Date - positioned at bottom left under DATE OF ISSUE label */}
+      {/* Issue Date */}
       <div 
         className="absolute"
-        style={{ bottom: '17.5%', left: '7.5%' }}
+        style={getPositionStyle(dateStyle)}
       >
-        <p 
-          style={{ 
-            fontFamily: 'Montserrat, sans-serif',
-            fontWeight: 500,
-            fontSize: '23px',
-            color: '#000000',
-          }}
-        >
+        <p style={getTextStyle(dateStyle)}>
           {formattedDate}
         </p>
       </div>
 
-      {/* Certificate ID - just below date, 18px, Montserrat Medium - conditionally shown */}
+      {/* Certificate ID - conditionally shown */}
       {showCertificateId && (
         <div 
           className="absolute"
-          style={{ bottom: '14.5%', left: '7.5%' }}
+          style={getPositionStyle(certificateIdStyle)}
         >
-          <p 
-            style={{ 
-              fontFamily: 'Montserrat, sans-serif',
-              fontWeight: 500,
-              fontSize: '18px',
-              color: '#000000',
-            }}
-          >
+          <p style={getTextStyle(certificateIdStyle)}>
             {certificateId}
           </p>
         </div>

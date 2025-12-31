@@ -9,6 +9,7 @@ import {
   Save,
   RefreshCw,
   Award,
+  Palette,
 } from 'lucide-react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Input } from '@/components/ui/input';
@@ -19,8 +20,9 @@ import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 import { AdminManagement } from '@/components/admin/AdminManagement';
 import { useCertificateSettings } from '@/hooks/useCertificateSettings';
+import { CertificateStyleEditor } from '@/components/settings/CertificateStyleEditor';
 export default function Settings() {
-  const { settings: certSettings, updateSettings: updateCertSettings } = useCertificateSettings();
+  const { settings: certSettings, updateSettings: updateCertSettings, defaultSettings } = useCertificateSettings();
   const [settings, setSettings] = useState({
     instituteName: 'Design Arc Academy',
     logoUrl: '',
@@ -81,7 +83,7 @@ Design Arc Academy Team`,
             Certificate Settings
           </h2>
 
-          <div className="flex items-center justify-between p-4 rounded-xl bg-muted/30">
+          <div className="flex items-center justify-between p-4 rounded-xl bg-muted/30 mb-6">
             <div>
               <Label htmlFor="showCertificateId" className="font-medium">
                 Show Certificate ID on Certificate
@@ -98,6 +100,23 @@ Design Arc Academy Team`,
               }
             />
           </div>
+        </div>
+
+        {/* Certificate Text Customization */}
+        <div className="glass-card rounded-2xl p-6">
+          <h2 className="text-lg font-semibold text-foreground mb-6 flex items-center gap-2">
+            <Palette className="w-5 h-5 text-primary" />
+            Certificate Text Customization
+          </h2>
+          <p className="text-sm text-muted-foreground mb-6">
+            Customize the position, font size, color, and styling of text elements on the certificate.
+          </p>
+          
+          <CertificateStyleEditor
+            settings={certSettings}
+            defaultSettings={defaultSettings}
+            onChange={updateCertSettings}
+          />
         </div>
 
         {/* Institute Settings */}
