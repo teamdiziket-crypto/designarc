@@ -73,7 +73,7 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
       {/* Student Name - Centered between "This is to certify that" and "has successfully completed" */}
       <div 
         className="absolute w-full text-center"
-        style={{ top: '40%', left: '0' }}
+        style={{ top: '41.5%', left: '0' }}
       >
         <p 
           style={{ 
@@ -92,7 +92,7 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
       {/* Issue Date - positioned at bottom left under DATE OF ISSUE label */}
       <div 
         className="absolute"
-        style={{ bottom: '19%', left: '8%' }}
+        style={{ bottom: '17.5%', left: '7.5%' }}
       >
         <p 
           style={{ 
@@ -110,7 +110,7 @@ const CertificateTemplate: React.FC<CertificateTemplateProps> = ({
       {showCertificateId && (
         <div 
           className="absolute"
-          style={{ bottom: '16%', left: '8%' }}
+          style={{ bottom: '14.5%', left: '7.5%' }}
         >
           <p 
             style={{ 
