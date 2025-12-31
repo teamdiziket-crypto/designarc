@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import CertificateTemplate from '@/components/certificates/CertificateTemplate';
@@ -9,8 +9,16 @@ interface CertificateLivePreviewProps {
   settings: CertificateSettings;
 }
 
+// Template dimensions (A4-like portrait)
+const TEMPLATE_WIDTH = 1588;
+const TEMPLATE_HEIGHT = 2246;
+const ASPECT_RATIO = TEMPLATE_HEIGHT / TEMPLATE_WIDTH;
+
 export function CertificateLivePreview({ settings }: CertificateLivePreviewProps) {
   const { coursesData, getTemplateUrl } = useCourses();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(0.3);
+  
   const [previewData, setPreviewData] = useState({
     fullName: 'John Doe',
     course: coursesData[0]?.name || 'Sample Course',
@@ -20,38 +28,58 @@ export function CertificateLivePreview({ settings }: CertificateLivePreviewProps
 
   const templateUrl = getTemplateUrl(previewData.course);
 
+  // Calculate scale based on container width
+  useEffect(() => {
+    const updateScale = () => {
+      if (containerRef.current) {
+        const containerWidth = containerRef.current.offsetWidth;
+        const newScale = containerWidth / TEMPLATE_WIDTH;
+        setScale(newScale);
+      }
+    };
+
+    updateScale();
+    
+    const resizeObserver = new ResizeObserver(updateScale);
+    if (containerRef.current) {
+      resizeObserver.observe(containerRef.current);
+    }
+
+    return () => resizeObserver.disconnect();
+  }, []);
+
   return (
     <div className="space-y-4">
       {/* Preview Data Inputs */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label className="text-sm">Preview Name</Label>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1.5">
+          <Label className="text-xs">Preview Name</Label>
           <Input
             value={previewData.fullName}
             onChange={(e) => setPreviewData({ ...previewData, fullName: e.target.value })}
-            className="input-glass"
-            placeholder="Enter name to preview"
+            className="input-glass h-9 text-sm"
+            placeholder="Enter name"
           />
         </div>
-        <div className="space-y-2">
-          <Label className="text-sm">Preview Date</Label>
+        <div className="space-y-1.5">
+          <Label className="text-xs">Preview Date</Label>
           <Input
             type="date"
             value={previewData.issueDate}
             onChange={(e) => setPreviewData({ ...previewData, issueDate: e.target.value })}
-            className="input-glass"
+            className="input-glass h-9 text-sm"
           />
         </div>
       </div>
 
       {/* Course Selection */}
       {coursesData.length > 0 && (
-        <div className="space-y-2">
-          <Label className="text-sm">Select Course Template</Label>
+        <div className="space-y-1.5">
+          <Label className="text-xs">Course Template</Label>
           <select
             value={previewData.course}
             onChange={(e) => setPreviewData({ ...previewData, course: e.target.value })}
-            className="w-full px-3 py-2 rounded-lg border bg-background text-foreground"
+            className="w-full px-3 py-2 h-9 rounded-lg border bg-background text-foreground text-sm"
           >
             {coursesData.map((course) => (
               <option key={course.id} value={course.name}>
@@ -62,40 +90,40 @@ export function CertificateLivePreview({ settings }: CertificateLivePreviewProps
         </div>
       )}
 
-      {/* Live Preview */}
-      <div className="border rounded-xl overflow-hidden bg-gray-100">
+      {/* Live Preview - Full width with proper A4 aspect ratio */}
+      <div 
+        ref={containerRef}
+        className="relative w-full overflow-hidden rounded-lg"
+        style={{ 
+          paddingBottom: `${ASPECT_RATIO * 100}%`,
+        }}
+      >
         <div 
-          className="overflow-auto"
+          className="absolute top-0 left-0"
           style={{ 
-            maxHeight: '500px',
+            width: `${TEMPLATE_WIDTH}px`,
+            height: `${TEMPLATE_HEIGHT}px`,
+            transform: `scale(${scale})`,
+            transformOrigin: 'top left',
           }}
         >
-          <div 
-            style={{ 
-              transform: 'scale(0.35)',
-              transformOrigin: 'top left',
-              width: '1588px',
-              height: '2246px',
-            }}
-          >
-            <CertificateTemplate
-              fullName={previewData.fullName}
-              course={previewData.course}
-              issueDate={previewData.issueDate}
-              certificateId={previewData.certificateId}
-              templateUrl={templateUrl}
-              showCertificateId={settings.show_certificate_id}
-              nameStyle={settings.name_style}
-              dateStyle={settings.date_style}
-              certificateIdStyle={settings.certificate_id_style}
-            />
-          </div>
+          <CertificateTemplate
+            fullName={previewData.fullName}
+            course={previewData.course}
+            issueDate={previewData.issueDate}
+            certificateId={previewData.certificateId}
+            templateUrl={templateUrl}
+            showCertificateId={settings.show_certificate_id}
+            nameStyle={settings.name_style}
+            dateStyle={settings.date_style}
+            certificateIdStyle={settings.certificate_id_style}
+          />
         </div>
       </div>
 
       {!templateUrl && (
-        <p className="text-sm text-muted-foreground text-center">
-          No template uploaded for this course. Upload a template in Courses to see the preview.
+        <p className="text-xs text-muted-foreground text-center">
+          No template uploaded. Upload one in Courses.
         </p>
       )}
     </div>
