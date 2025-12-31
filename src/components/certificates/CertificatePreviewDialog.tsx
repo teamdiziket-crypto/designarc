@@ -28,8 +28,9 @@ export function CertificatePreviewDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[900px] max-h-[95vh] overflow-auto p-0 bg-gray-100">
-        <div className="sticky top-0 z-10 bg-background border-b p-4 flex items-center justify-between">
+      <DialogContent className="max-w-[95vw] max-h-[95vh] overflow-auto p-0 bg-gray-100 print:max-w-none print:max-h-none print:overflow-visible print:bg-white print:p-0">
+        {/* Header - Hidden during print */}
+        <div className="sticky top-0 z-10 bg-background border-b p-4 flex items-center justify-between print:hidden">
           <h2 className="text-lg font-semibold">Certificate Preview</h2>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={handlePrint}>
@@ -42,8 +43,15 @@ export function CertificatePreviewDialog({
           </div>
         </div>
         
-        <div className="p-6 flex justify-center">
-          <div className="shadow-2xl">
+        {/* Certificate Container - Scaled for screen, full size for print */}
+        <div className="p-6 flex justify-center print:p-0 print:block">
+          <div 
+            className="shadow-2xl print:shadow-none origin-top-left"
+            style={{ 
+              transform: 'scale(0.5)',
+              transformOrigin: 'top center',
+            }}
+          >
             <CertificateTemplate
               fullName={certificate.fullName}
               course={certificate.course}
